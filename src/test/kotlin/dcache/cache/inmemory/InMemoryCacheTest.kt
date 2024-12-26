@@ -52,12 +52,14 @@ class InMemoryCacheTest
         val key = "testInMemoryCache"
         Assertions.assertNull(cache.get(key))
         Assertions.assertNull(inmem.get(key))
+        Assertions.assertNull((cacheManager.getCache("in-mem-name").get() as Cache<String, String>).get(key))
         Assertions.assertNull(cache2.get(key))
 
         val value = "value"
         cache.put(key, value)
         Assertions.assertEquals(value, cache.get(key))
         Assertions.assertEquals(value, inmem.get(key))
+        Assertions.assertEquals(value, (cacheManager.getCache("in-mem-name").get() as Cache<String, String>).get(key))
         Assertions.assertNull(cache2.get(key))
     }
 }
