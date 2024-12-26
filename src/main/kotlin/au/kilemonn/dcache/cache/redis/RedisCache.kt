@@ -9,7 +9,12 @@ import org.springframework.data.redis.serializer.StringRedisSerializer
 import java.util.Optional
 import kotlin.time.Duration
 
-class RedisCache<K, V>(val keyClass: Class<K>, val valueClass: Class<V>, val config: CacheConfiguration) : Cache<K, V>
+/**
+ * Wraps the [RedisTemplate].
+ *
+ * @author github.com/Kilemonn
+ */
+class RedisCache<K, V>(keyClass: Class<K>, valueClass: Class<V>, val config: CacheConfiguration) : Cache<K, V>
 {
     companion object
     {
@@ -26,7 +31,8 @@ class RedisCache<K, V>(val keyClass: Class<K>, val valueClass: Class<V>, val con
     {
         if (config.getEndpoint().isBlank())
         {
-            throw IllegalArgumentException("No endpoint provided for REDIS cache with ID [${config.id}].")
+            // TODO: exception type
+            throw IllegalArgumentException("Empty endpoint provided for REDIS cache with ID [${config.id}].")
         }
         var port = config.getPort()
         if (port == 0)

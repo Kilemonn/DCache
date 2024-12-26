@@ -23,6 +23,8 @@ dependencies {
     // https://mvnrepository.com/artifact/com.github.ben-manes.caffeine/caffeine
     implementation("com.github.ben-manes.caffeine:caffeine:3.1.8")
 
+    // https://mvnrepository.com/artifact/com.googlecode.xmemcached/xmemcached
+    implementation("com.googlecode.xmemcached:xmemcached:2.4.8")
 
     // Runtime
     // https://mvnrepository.com/artifact/org.jetbrains.kotlin/kotlin-reflect

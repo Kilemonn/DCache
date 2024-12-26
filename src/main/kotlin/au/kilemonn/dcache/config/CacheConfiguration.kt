@@ -2,6 +2,7 @@ package au.kilemonn.dcache.config
 
 import au.kilemonn.dcache.cache.Cache
 import au.kilemonn.dcache.cache.inmemory.InMemoryCache
+import au.kilemonn.dcache.cache.memcached.MemcachedCache
 import au.kilemonn.dcache.cache.redis.RedisCache
 import java.util.Optional
 
@@ -123,6 +124,10 @@ class CacheConfiguration
         else if (type == CacheType.REDIS)
         {
             return RedisCache(keyClass, valueClass, this)
+        }
+        else if (type == CacheType.MEMCACHED)
+        {
+            return MemcachedCache(keyClass, valueClass, this)
         }
 
         throw IllegalArgumentException("Invalid type not supported???")

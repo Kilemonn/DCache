@@ -10,7 +10,7 @@ import kotlin.time.Duration
  *
  * @author github.com/Kilemonn
  */
-class InMemoryCache<K, V>(val keyClass: Class<K>, val valueClass: Class<V>, val config: CacheConfiguration) : Cache<K, V>
+class InMemoryCache<K, V>(keyClass: Class<K>, valueClass: Class<V>, val config: CacheConfiguration) : Cache<K, V>
 {
     private var cache: com.github.benmanes.caffeine.cache.Cache<K, V>
 
