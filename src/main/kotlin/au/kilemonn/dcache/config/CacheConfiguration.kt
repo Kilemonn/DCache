@@ -2,6 +2,7 @@ package au.kilemonn.dcache.config
 
 import au.kilemonn.dcache.cache.Cache
 import au.kilemonn.dcache.cache.inmemory.InMemoryCache
+import au.kilemonn.dcache.cache.redis.RedisCache
 import java.util.Optional
 
 
@@ -35,9 +36,9 @@ class CacheConfiguration
 
             config.withPrefix(Optional<String>.ofNullable(map[PREFIX]).orElse("").toString())
                 .withEndpoint(Optional<String>.ofNullable(map[ENDPOINT]).orElse("").toString())
-                .withPort(Optional<Int>.ofNullable(map[PORT]).orElse(0) as Int)
-                .withMaxEntries(Optional<Long>.ofNullable(map[MAX_ENTRIES]).orElse(0L) as Long)
-                .withExpirationFromWrite(Optional<Int>.ofNullable(map[EXPIRATION_FROM_WRITE]).orElse(0) as Int)
+                .withPort((Optional<Int>.ofNullable(map[PORT]).orElse(0)).toString().toInt())
+                .withMaxEntries((Optional<Long>.ofNullable(map[MAX_ENTRIES]).orElse(0L)).toString().toLong())
+                .withExpirationFromWrite((Optional<Int>.ofNullable(map[EXPIRATION_FROM_WRITE]).orElse(0)).toString().toInt())
 
             return config
         }
@@ -80,10 +81,20 @@ class CacheConfiguration
         return this
     }
 
+    fun getEndpoint(): String
+    {
+        return endpoint
+    }
+
     fun withPort(port: Int): CacheConfiguration
     {
         this.port = port
         return this
+    }
+
+    fun getPort(): Int
+    {
+        return port
     }
 
     fun withMaxEntries(maxEntries: Long): CacheConfiguration
@@ -108,6 +119,10 @@ class CacheConfiguration
         if (type == CacheType.IN_MEMORY)
         {
             return InMemoryCache(keyClass, valueClass, this)
+        }
+        else if (type == CacheType.REDIS)
+        {
+            return RedisCache(keyClass, valueClass, this)
         }
 
         throw IllegalArgumentException("Invalid type not supported???")

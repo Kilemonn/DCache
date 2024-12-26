@@ -1,4 +1,5 @@
 var springVersion = "3.4.1"
+val testContainersVersion = "1.20.4"
 
 plugins {
     kotlin("jvm") version "2.0.21"
@@ -28,7 +29,12 @@ dependencies {
     runtimeOnly("org.jetbrains.kotlin:kotlin-reflect:2.1.0")
 
     // Tests
+    testImplementation("org.junit.jupiter:junit-jupiter-api:5.11.4")
     testImplementation("org.springframework.boot:spring-boot-starter-test:${springVersion}")
+
+    // https://mvnrepository.com/artifact/org.testcontainers/testcontainers
+    testImplementation("org.testcontainers:testcontainers:${testContainersVersion}")
+    testImplementation("org.testcontainers:junit-jupiter:${testContainersVersion}")
 
     testImplementation(kotlin("test"))
 }

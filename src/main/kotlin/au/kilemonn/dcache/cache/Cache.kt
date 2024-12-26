@@ -9,7 +9,7 @@ import kotlin.time.Duration
  */
 interface Cache<K, V>
 {
-    fun get(key: K): V
+    fun get(key: K): V?
     fun getWithDefault(key: K, default: V): V
 
     fun put(key: K, value: V): Boolean
