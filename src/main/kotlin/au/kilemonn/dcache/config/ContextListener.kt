@@ -27,6 +27,9 @@ class ContextListener: ApplicationContextAware
         const val CONFIG_NAME = "dcache-init"
 
         private const val DCACHE_CONFIG_PREFIX = "dcache.cache."
+
+        // Incase the caches are not ready you can add @DependsOn() with the cache manager name
+        const val DCACHE_CACHE_MANAGER = "dcache.cache.manager"
     }
 
     @Autowired
@@ -34,7 +37,7 @@ class ContextListener: ApplicationContextAware
 
     private lateinit var context: GenericApplicationContext
 
-    @Bean
+    @Bean(name = [DCACHE_CACHE_MANAGER])
     @Lazy(false) // Ensure that this is not lazy loaded
     fun initialiseCacheManager(): CacheManager
     {
