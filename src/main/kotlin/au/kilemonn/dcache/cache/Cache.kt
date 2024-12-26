@@ -15,4 +15,9 @@ interface Cache<K, V>
     fun put(key: K, value: V): Boolean
     fun putIfAbsent(key: K, value: V): Boolean
     fun putWithExpiry(key: K, value: V, duration: Duration): Boolean
+
+    /**
+     * Add the provided prefix to the key, only if the key is of type [String].
+     */
+    fun withPrefix(key: K): K
 }

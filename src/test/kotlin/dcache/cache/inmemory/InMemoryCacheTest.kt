@@ -19,7 +19,8 @@ import kotlin.test.Test
  * @author github.com/Kilemonn
  */
 @ExtendWith(SpringExtension::class)
-@TestPropertySource(properties = ["dcache.cache.in-mem-name.type=IN_MEMORY",
+@TestPropertySource(properties = [
+    "dcache.cache.in-mem-name.type=IN_MEMORY",
     "dcache.cache.in-mem-name.key_class=java.lang.String",
     "dcache.cache.in-mem-name.value_class=java.lang.String",
 

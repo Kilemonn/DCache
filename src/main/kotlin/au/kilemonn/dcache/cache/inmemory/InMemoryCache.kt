@@ -1,6 +1,7 @@
 package au.kilemonn.dcache.cache.inmemory
 
 import au.kilemonn.dcache.cache.Cache
+import au.kilemonn.dcache.config.CacheConfiguration
 import com.github.benmanes.caffeine.cache.Caffeine
 import kotlin.time.Duration
 
@@ -9,24 +10,32 @@ import kotlin.time.Duration
  *
  * @author github.com/Kilemonn
  */
-class InMemoryCache<K, V>(val keyClass: Class<K>, val valueClass: Class<V>) : Cache<K, V>
+class InMemoryCache<K, V>(val keyClass: Class<K>, val valueClass: Class<V>, val config: CacheConfiguration) : Cache<K, V>
 {
     private var cache: com.github.benmanes.caffeine.cache.Cache<K, V>
-        = Caffeine.newBuilder().build()
+
+    init {
+        val builder = Caffeine.newBuilder()
+        if (config.getMaxEntries() > 0)
+        {
+            builder.maximumSize(config.getMaxEntries())
+        }
+        cache = builder.build()
+    }
 
     override fun get(key: K): V
     {
-        return cache.get(key) { null }
+        return cache.get(withPrefix(key)) { null }
     }
 
     override fun getWithDefault(key: K, default: V): V
     {
-        return cache.get(key) { default }
+        return cache.get(withPrefix(key)) { default }
     }
 
     override fun put(key: K, value: V): Boolean
     {
-        cache.put(key, value)
+        cache.put(withPrefix(key), value)
 
         // TODO: Return val
         return true
@@ -40,5 +49,14 @@ class InMemoryCache<K, V>(val keyClass: Class<K>, val valueClass: Class<V>) : Ca
     override fun putWithExpiry(key: K, value: V, duration: Duration): Boolean
     {
         TODO("Not yet implemented")
+    }
+
+    override fun withPrefix(key: K): K
+    {
+        if (key is String)
+        {
+            return (config.getPrefix() + key) as K
+        }
+        return key
     }
 }

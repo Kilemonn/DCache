@@ -20,7 +20,7 @@ class CacheConfiguration
         const val PREFIX: String = "prefix"
         const val ENDPOINT: String = "endpoint"
         const val PORT: String = "port"
-        const val TOTAL_ENTRIES: String = "total_entries"
+        const val MAX_ENTRIES: String = "max_entries"
         const val EXPIRATION_FROM_WRITE: String = "expiration_from_write"
 
         fun from(id: String, map: Map<String, Any>): CacheConfiguration
@@ -36,7 +36,7 @@ class CacheConfiguration
             config.withPrefix(Optional<String>.ofNullable(map[PREFIX]).orElse("").toString())
                 .withEndpoint(Optional<String>.ofNullable(map[ENDPOINT]).orElse("").toString())
                 .withPort(Optional<Int>.ofNullable(map[PORT]).orElse(0) as Int)
-                .withTotalEntries(Optional<Int>.ofNullable(map[TOTAL_ENTRIES]).orElse(0) as Int)
+                .withMaxEntries(Optional<Long>.ofNullable(map[MAX_ENTRIES]).orElse(0L) as Long)
                 .withExpirationFromWrite(Optional<Int>.ofNullable(map[EXPIRATION_FROM_WRITE]).orElse(0) as Int)
 
             return config
@@ -60,13 +60,18 @@ class CacheConfiguration
     private var prefix: String = ""
     private var endpoint: String = ""
     private var port: Int = 0
-    private var totalEntries: Int = 0
+    private var maxEntries: Long = 0
     private var expirationFromWrite: Int = 0
 
     fun withPrefix(prefix: String): CacheConfiguration
     {
         this.prefix = prefix
         return this
+    }
+
+    fun getPrefix(): String
+    {
+        return prefix
     }
 
     fun withEndpoint(endpoint: String): CacheConfiguration
@@ -81,10 +86,15 @@ class CacheConfiguration
         return this
     }
 
-    fun withTotalEntries(totalEntries: Int): CacheConfiguration
+    fun withMaxEntries(maxEntries: Long): CacheConfiguration
     {
-        this.totalEntries = totalEntries
+        this.maxEntries = maxEntries
         return this
+    }
+
+    fun getMaxEntries(): Long
+    {
+        return maxEntries
     }
 
     fun withExpirationFromWrite(expirationFromWrite: Int): CacheConfiguration
@@ -97,7 +107,7 @@ class CacheConfiguration
     {
         if (type == CacheType.IN_MEMORY)
         {
-            return InMemoryCache(keyClass, valueClass)
+            return InMemoryCache(keyClass, valueClass, this)
         }
 
         throw IllegalArgumentException("Invalid type not supported???")
