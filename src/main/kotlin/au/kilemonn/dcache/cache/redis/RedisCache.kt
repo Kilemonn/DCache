@@ -6,8 +6,10 @@ import org.springframework.data.redis.connection.RedisStandaloneConfiguration
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory
 import org.springframework.data.redis.core.RedisTemplate
 import org.springframework.data.redis.serializer.StringRedisSerializer
+import java.time.Duration
 import java.util.Optional
-import kotlin.time.Duration
+import java.util.function.Supplier
+import kotlin.time.toJavaDuration
 
 /**
  * Wraps the [RedisTemplate].
@@ -66,6 +68,11 @@ class RedisCache<K, V>(keyClass: Class<K>, valueClass: Class<V>, val config: Cac
         return Optional<V>.ofNullable(template.opsForValue().get(withPrefix(key))).orElse(default)
     }
 
+    override fun getWithDefault(key: K, defaultSupplier: Supplier<V>): V
+    {
+        return Optional<V>.ofNullable(template.opsForValue().get(withPrefix(key))).orElse(defaultSupplier.get())
+    }
+
     override fun put(key: K, value: V): Boolean
     {
         template.opsForValue().set(withPrefix(key), value)
@@ -80,7 +87,24 @@ class RedisCache<K, V>(keyClass: Class<K>, valueClass: Class<V>, val config: Cac
 
     override fun putWithExpiry(key: K, value: V, duration: Duration): Boolean
     {
-        TODO("Not yet implemented")
+        val result = put(key, value)
+        template.expire(withPrefix(key), duration)
+        return result
+    }
+
+    override fun putIfAbsentWithExpiry(key: K, value: V, duration: Duration): Boolean
+    {
+        get(withPrefix(key))?.let { // Value exists
+            return false
+        } ?: run { // Value does not exist
+            // Don't perform prefix here
+            return putWithExpiry(key, value, duration)
+        }
+    }
+
+    override fun invalidate(key: K)
+    {
+        template.opsForValue().getAndDelete(withPrefix(key))
     }
 
     override fun getPrefix(): String

@@ -1,6 +1,7 @@
 package au.kilemonn.dcache.cache.memcached
 
 import au.kilemonn.dcache.cache.Cache
+import au.kilemonn.dcache.cache.CacheTest
 import au.kilemonn.dcache.config.ContextListener
 import au.kilemonn.dcache.manager.CacheManager
 import org.junit.jupiter.api.AfterAll
@@ -89,22 +90,64 @@ class MemcachedCacheTest
 
     @Autowired
     @Qualifier("memcached-cache")
-    private lateinit var memcachedCache: Cache<String, String>
+    private lateinit var cache: Cache<String, String>
 
     @Autowired
     private lateinit var manager: CacheManager
 
     @Test
-    fun testMemcachedGetAndPut()
+    fun testManagerWired()
     {
         Assertions.assertEquals(1, manager.size)
+    }
 
+    @Test
+    fun testGetAndPut()
+    {
         val key = "memcached-key"
         val value = "some-value"
+        CacheTest.testGetAndPut(key, value, cache)
+    }
 
-        Assertions.assertNull(memcachedCache.get(key))
+    @Test
+    fun testGetWithDefault()
+    {
+        val key = "testGetWithDefault"
+        val value = "testGetWithDefault_value"
+        CacheTest.testGetWithDefault(key, value, cache)
+    }
 
-        memcachedCache.put(key, value)
-        Assertions.assertEquals(value, memcachedCache.get(key))
+    @Test
+    fun testGetWithDefaultSupplier()
+    {
+        val key = "testGetWithDefaultSupplier"
+        val value = "testGetWithDefaultSupplier_value"
+        CacheTest.testGetWithDefaultSupplier(key, { value }, cache)
+    }
+
+    @Test
+    fun testPutIfAbsent()
+    {
+        val key = "testPutIfAbsent"
+        val value = "testPutIfAbsent_value"
+        val value2 = "testPutIfAbsent_value2"
+        Assertions.assertNotEquals(value, value2)
+        CacheTest.testPutIfAbsent(key, value, value2, cache)
+    }
+
+    @Test
+    fun testInvalidate()
+    {
+        val key = "testInvalidate"
+        val value = "testInvalidate_value"
+        CacheTest.testInvalidate(key, value, cache)
+    }
+
+    @Test
+    fun testPutWithExpiry()
+    {
+        val key = "testPutWithExpiry"
+        val value = "testPutWithExpiry_value"
+        CacheTest.testPutWithExpiry(key, value, cache)
     }
 }

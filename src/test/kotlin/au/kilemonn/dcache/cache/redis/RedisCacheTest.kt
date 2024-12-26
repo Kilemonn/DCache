@@ -1,6 +1,7 @@
 package au.kilemonn.dcache.cache.redis
 
 import au.kilemonn.dcache.cache.Cache
+import au.kilemonn.dcache.cache.CacheTest
 import au.kilemonn.dcache.config.ContextListener
 import au.kilemonn.dcache.manager.CacheManager
 import org.junit.jupiter.api.AfterAll
@@ -38,7 +39,7 @@ class RedisCacheTest
     companion object
     {
         private const val REDIS_PORT: Int = 6379
-        private const val REDIS_CONTAINER: String = "redis:7.2.3-alpine"
+        private const val REDIS_CONTAINER: String = "redis:7.4.1-alpine"
 
         lateinit var redis: GenericContainer<*>
 
@@ -89,22 +90,64 @@ class RedisCacheTest
 
     @Autowired
     @Qualifier("redis-cache")
-    private lateinit var redisCache: Cache<String, String>
+    private lateinit var cache: Cache<String, String>
 
     @Autowired
     private lateinit var manager: CacheManager
 
     @Test
-    fun testRedisGetAndPut()
+    fun testManagerWired()
     {
         Assertions.assertEquals(1, manager.size)
+    }
 
+    @Test
+    fun testGetAndPut()
+    {
         val key = "redis-key"
         val value = "some-value"
+        CacheTest.testGetAndPut(key, value, cache)
+    }
 
-        Assertions.assertNull(redisCache.get(key))
+    @Test
+    fun testGetWithDefault()
+    {
+        val key = "testGetWithDefault"
+        val value = "testGetWithDefault_value"
+        CacheTest.testGetWithDefault(key, value, cache)
+    }
 
-        redisCache.put(key, value)
-        Assertions.assertEquals(value, redisCache.get(key))
+    @Test
+    fun testGetWithDefaultSupplier()
+    {
+        val key = "testGetWithDefaultSupplier"
+        val value = "testGetWithDefaultSupplier_value"
+        CacheTest.testGetWithDefaultSupplier(key, { value }, cache)
+    }
+
+    @Test
+    fun testPutIfAbsent()
+    {
+        val key = "testPutIfAbsent"
+        val value = "testPutIfAbsent_value"
+        val value2 = "testPutIfAbsent_value2"
+        Assertions.assertNotEquals(value, value2)
+        CacheTest.testPutIfAbsent(key, value, value2, cache)
+    }
+
+    @Test
+    fun testInvalidate()
+    {
+        val key = "testInvalidate"
+        val value = "testInvalidate_value"
+        CacheTest.testInvalidate(key, value, cache)
+    }
+
+    @Test
+    fun testPutWithExpiry()
+    {
+        val key = "testPutWithExpiry"
+        val value = "testPutWithExpiry_value"
+        CacheTest.testPutWithExpiry(key, value, cache)
     }
 }

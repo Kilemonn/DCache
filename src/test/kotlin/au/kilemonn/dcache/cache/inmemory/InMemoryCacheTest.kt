@@ -1,6 +1,7 @@
 package au.kilemonn.dcache.cache.inmemory
 
 import au.kilemonn.dcache.cache.Cache
+import au.kilemonn.dcache.cache.CacheTest
 import au.kilemonn.dcache.cache.inmemory.InMemoryCache
 import au.kilemonn.dcache.config.ContextListener
 import au.kilemonn.dcache.manager.CacheManager
@@ -46,7 +47,7 @@ class InMemoryCacheTest
     private lateinit var cacheManager: CacheManager
 
     @Test
-    fun testInMemoryCache()
+    fun testInMemoryCacheMultipleReferences()
     {
         Assertions.assertEquals(2, cacheManager.size)
 
@@ -62,5 +63,55 @@ class InMemoryCacheTest
         Assertions.assertEquals(value, inmem.get(key))
         Assertions.assertEquals(value, (cacheManager.getCache("in-mem-name").get() as Cache<String, String>).get(key))
         Assertions.assertNull(cache2.get(key))
+    }
+
+    @Test
+    fun testGetAndPut()
+    {
+        val key = "test_in_memory"
+        val value = "in_memory_value"
+        CacheTest.testGetAndPut(key, value, cache)
+    }
+
+    @Test
+    fun testGetWithDefault()
+    {
+        val key = "testGetWithDefault"
+        val value = "testGetWithDefault_value"
+        CacheTest.testGetWithDefault(key, value, cache)
+    }
+
+    @Test
+    fun testGetWithDefaultSupplier()
+    {
+        val key = "testGetWithDefaultSupplier"
+        val value = "testGetWithDefaultSupplier_value"
+        CacheTest.testGetWithDefaultSupplier(key, { value }, cache)
+    }
+
+    @Test
+    fun testPutIfAbsent()
+    {
+        val key = "testPutIfAbsent"
+        val value = "testPutIfAbsent_value"
+        val value2 = "testPutIfAbsent_value2"
+        Assertions.assertNotEquals(value, value2)
+        CacheTest.testPutIfAbsent(key, value, value2, cache)
+    }
+
+    @Test
+    fun testInvalidate()
+    {
+        val key = "testInvalidate"
+        val value = "testInvalidate_value"
+        CacheTest.testInvalidate(key, value, cache)
+    }
+
+    @Test
+    fun testPutWithExpiry()
+    {
+        val key = "testPutWithExpiry"
+        val value = "testPutWithExpiry_value"
+        CacheTest.testPutWithExpiry(key, value, cache)
     }
 }

@@ -3,7 +3,8 @@ package au.kilemonn.dcache.cache.inmemory
 import au.kilemonn.dcache.cache.Cache
 import au.kilemonn.dcache.config.CacheConfiguration
 import com.github.benmanes.caffeine.cache.Caffeine
-import kotlin.time.Duration
+import java.time.Duration
+import java.util.function.Supplier
 
 /**
  * Wraps the [Caffeine] cache.
@@ -33,6 +34,11 @@ class InMemoryCache<K, V>(keyClass: Class<K>, valueClass: Class<V>, val config: 
         return cache.get(withPrefix(key)) { default }
     }
 
+    override fun getWithDefault(key: K, defaultSupplier: Supplier<V>): V
+    {
+        return cache.get(withPrefix(key)) { defaultSupplier.get() }
+    }
+
     override fun put(key: K, value: V): Boolean
     {
         cache.put(withPrefix(key), value)
@@ -43,12 +49,34 @@ class InMemoryCache<K, V>(keyClass: Class<K>, valueClass: Class<V>, val config: 
 
     override fun putIfAbsent(key: K, value: V): Boolean
     {
-        TODO("Not yet implemented")
+        get(withPrefix(key))?.let { // Value exists
+            return false
+        } ?: run { // Value does not exist
+            // Don't perform prefix here
+            return put(key, value)
+        }
     }
 
     override fun putWithExpiry(key: K, value: V, duration: Duration): Boolean
     {
-        TODO("Not yet implemented")
+        val result = put(key, value)
+
+        return result
+    }
+
+    override fun putIfAbsentWithExpiry(key: K, value: V, duration: Duration): Boolean
+    {
+        get(withPrefix(key))?.let { // Value exists
+            return false
+        } ?: run { // Value does not exist
+            // Don't perform prefix here
+            return putWithExpiry(key, value, duration)
+        }
+    }
+
+    override fun invalidate(key: K)
+    {
+        cache.invalidate(withPrefix(key))
     }
 
     override fun getPrefix(): String
