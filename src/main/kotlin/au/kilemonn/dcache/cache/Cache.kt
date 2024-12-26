@@ -20,4 +20,17 @@ interface Cache<K, V>
      * Add the provided prefix to the key, only if the key is of type [String].
      */
     fun withPrefix(key: K): K
+    {
+        val prefix = getPrefix()
+        if (key is String && prefix.isNotBlank())
+        {
+            return (getPrefix() + key) as K
+        }
+        return key
+    }
+
+    /**
+     * Get the key prefix from the [au.kilemonn.dcache.config.CacheConfiguration].
+     */
+    fun getPrefix(): String
 }

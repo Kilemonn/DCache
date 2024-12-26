@@ -72,13 +72,8 @@ class MemcachedCache<K, V>(keyClass: Class<K>, valueClass: Class<V>, val config:
         return cache.set(withPrefix(key) as String, duration.inWholeSeconds.toInt(), value)
     }
 
-    override fun withPrefix(key: K): K
+    override fun getPrefix(): String
     {
-        if (key is String)
-        {
-            return (config.getPrefix() + key) as K
-        }
-        return key
+        return config.getPrefix()
     }
-
 }
