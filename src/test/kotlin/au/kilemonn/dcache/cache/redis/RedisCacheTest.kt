@@ -1,4 +1,4 @@
-package dcache.cache.redis
+package au.kilemonn.dcache.cache.redis
 
 import au.kilemonn.dcache.cache.Cache
 import au.kilemonn.dcache.config.ContextListener
@@ -21,7 +21,7 @@ import org.testcontainers.utility.DockerImageName
 import kotlin.test.Test
 
 /**
- * A test for the [au.kilemonn.dcache.cache.redis.RedisCache] initialisation and wiring.
+ * A test for the [RedisCache] initialisation and wiring.
  *
  * @author github.com/Kilemonn
  */

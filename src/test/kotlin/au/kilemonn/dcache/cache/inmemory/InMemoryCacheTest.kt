@@ -1,4 +1,4 @@
-package dcache.cache.inmemory
+package au.kilemonn.dcache.cache.inmemory
 
 import au.kilemonn.dcache.cache.Cache
 import au.kilemonn.dcache.cache.inmemory.InMemoryCache
