@@ -49,7 +49,7 @@ class InMemoryCache<K, V>(keyClass: Class<K>, valueClass: Class<V>, val config: 
 
     override fun putIfAbsent(key: K, value: V): Boolean
     {
-        get(withPrefix(key))?.let { // Value exists
+        get(key)?.let { // Value exists
             return false
         } ?: run { // Value does not exist
             // Don't perform prefix here
@@ -66,7 +66,7 @@ class InMemoryCache<K, V>(keyClass: Class<K>, valueClass: Class<V>, val config: 
 
     override fun putIfAbsentWithExpiry(key: K, value: V, duration: Duration): Boolean
     {
-        get(withPrefix(key))?.let { // Value exists
+        get(key)?.let { // Value exists
             return false
         } ?: run { // Value does not exist
             // Don't perform prefix here

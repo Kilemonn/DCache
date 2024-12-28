@@ -31,7 +31,14 @@ import org.testcontainers.utility.DockerImageName
     // Endpoint and port are set below
     "dcache.cache.memcached-cache.type=MEMCACHED",
     "dcache.cache.memcached-cache.key_class=java.lang.String",
-    "dcache.cache.memcached-cache.value_class=java.lang.String"])
+    "dcache.cache.memcached-cache.value_class=java.lang.String",
+
+    // Create second cache with prefix
+    "dcache.cache.memcached-cache-with-prefix.type=MEMCACHED",
+    "dcache.cache.memcached-cache-with-prefix.key_class=java.lang.String",
+    "dcache.cache.memcached-cache-with-prefix.value_class=java.lang.String",
+    "dcache.cache.memcached-cache-with-prefix.prefix=memcache-prefix-"
+])
 @ContextConfiguration(initializers = [MemcachedCacheTest.Initializer::class])
 @Import(*[ContextListener::class])
 class MemcachedCacheTest
@@ -74,7 +81,10 @@ class MemcachedCacheTest
 
             TestPropertyValues.of(
                 "dcache.cache.memcached-cache.endpoint=${memcache.host}",
-                "dcache.cache.memcached-cache.port=${memcache.getMappedPort(MEMCACHED_PORT)}"
+                "dcache.cache.memcached-cache.port=${memcache.getMappedPort(MEMCACHED_PORT)}",
+
+                "dcache.cache.memcached-cache-with-prefix.endpoint=${memcache.host}",
+                "dcache.cache.memcached-cache-with-prefix.port=${memcache.getMappedPort(MEMCACHED_PORT)}"
             ).applyTo(configurableApplicationContext.environment)
         }
     }
@@ -93,12 +103,16 @@ class MemcachedCacheTest
     private lateinit var cache: Cache<String, String>
 
     @Autowired
+    @Qualifier("memcached-cache-with-prefix")
+    private lateinit var prefixCache: Cache<String, String>
+
+    @Autowired
     private lateinit var manager: CacheManager
 
     @Test
     fun testManagerWired()
     {
-        Assertions.assertEquals(1, manager.size)
+        Assertions.assertEquals(2, manager.size)
     }
 
     @Test
@@ -107,6 +121,7 @@ class MemcachedCacheTest
         val key = "memcached-key"
         val value = "some-value"
         CacheTest.testGetAndPut(key, value, cache)
+        CacheTest.testGetAndPut(key, value, prefixCache)
     }
 
     @Test
@@ -115,6 +130,7 @@ class MemcachedCacheTest
         val key = "testGetWithDefault"
         val value = "testGetWithDefault_value"
         CacheTest.testGetWithDefault(key, value, cache)
+        CacheTest.testGetWithDefault(key, value, prefixCache)
     }
 
     @Test
@@ -123,6 +139,7 @@ class MemcachedCacheTest
         val key = "testGetWithDefaultSupplier"
         val value = "testGetWithDefaultSupplier_value"
         CacheTest.testGetWithDefaultSupplier(key, { value }, cache)
+        CacheTest.testGetWithDefaultSupplier(key, { value }, prefixCache)
     }
 
     @Test
@@ -133,6 +150,7 @@ class MemcachedCacheTest
         val value2 = "testPutIfAbsent_value2"
         Assertions.assertNotEquals(value, value2)
         CacheTest.testPutIfAbsent(key, value, value2, cache)
+        CacheTest.testPutIfAbsent(key, value, value2, prefixCache)
     }
 
     @Test
@@ -141,6 +159,7 @@ class MemcachedCacheTest
         val key = "testInvalidate"
         val value = "testInvalidate_value"
         CacheTest.testInvalidate(key, value, cache)
+        CacheTest.testInvalidate(key, value, prefixCache)
     }
 
     @Test
@@ -149,5 +168,16 @@ class MemcachedCacheTest
         val key = "testPutWithExpiry"
         val value = "testPutWithExpiry_value"
         CacheTest.testPutWithExpiry(key, value, cache)
+        CacheTest.testPutWithExpiry(key, value, prefixCache)
+    }
+
+    @Test
+    fun testPutIfAbsentWithExpiry()
+    {
+        val key = "testPutIfAbsentWithExpiry"
+        val value = "testPutIfAbsentWithExpiry_value"
+        val value2 = "testPutIfAbsentWithExpiry_value2"
+        CacheTest.testPutIfAbsentWithExpiry(key, value, value2, cache)
+        CacheTest.testPutIfAbsentWithExpiry(key, value, value2, prefixCache)
     }
 }

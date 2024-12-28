@@ -114,4 +114,13 @@ class InMemoryCacheTest
         val value = "testPutWithExpiry_value"
         CacheTest.testPutWithExpiry(key, value, cache)
     }
+
+    @Test
+    fun testPutIfAbsentWithExpiry()
+    {
+        val key = "testPutIfAbsentWithExpiry"
+        val value = "testPutIfAbsentWithExpiry_value"
+        val value2 = "testPutIfAbsentWithExpiry_value2"
+        CacheTest.testPutIfAbsentWithExpiry(key, value, value2, cache)
+    }
 }
