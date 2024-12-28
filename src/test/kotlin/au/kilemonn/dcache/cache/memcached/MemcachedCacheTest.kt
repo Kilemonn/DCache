@@ -2,7 +2,7 @@ package au.kilemonn.dcache.cache.memcached
 
 import au.kilemonn.dcache.cache.Cache
 import au.kilemonn.dcache.cache.CacheTest
-import au.kilemonn.dcache.config.ContextListener
+import au.kilemonn.dcache.config.DCacheConfiguration
 import au.kilemonn.dcache.manager.CacheManager
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.Assertions
@@ -40,7 +40,7 @@ import org.testcontainers.utility.DockerImageName
     "dcache.cache.memcached-cache-with-prefix.prefix=memcache-prefix-"
 ])
 @ContextConfiguration(initializers = [MemcachedCacheTest.Initializer::class])
-@Import(*[ContextListener::class])
+@Import(*[DCacheConfiguration::class])
 class MemcachedCacheTest
 {
     companion object

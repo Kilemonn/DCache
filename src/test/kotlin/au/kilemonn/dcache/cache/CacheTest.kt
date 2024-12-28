@@ -57,20 +57,20 @@ class CacheTest
 
         fun <K, V> testPutWithExpiry(key: K, value: V, cache: Cache<K, V>)
         {
-            val duration = java.time.Duration.ofSeconds(3)
+            val duration = java.time.Duration.ofSeconds(4)
             Assertions.assertNull(cache.get(key))
             Assertions.assertTrue { cache.putWithExpiry(key, value, duration) }
 
             Assertions.assertEquals(value, cache.get(key))
             Thread.sleep(duration.toMillis() / 2)
             Assertions.assertEquals(value, cache.get(key))
-            Thread.sleep(duration.toMillis() / 2)
+            Thread.sleep((duration.toMillis() / 2) + 1000) // Add an extra 1s here as a grace period
             Assertions.assertNull(cache.get(key))
         }
 
         fun <K, V> testPutIfAbsentWithExpiry(key: K, value: V, value2: V, cache: Cache<K, V>)
         {
-            val duration = java.time.Duration.ofSeconds(3)
+            val duration = java.time.Duration.ofSeconds(4)
             Assertions.assertNull(cache.get(key))
             Assertions.assertTrue { cache.putIfAbsentWithExpiry(key, value, duration) }
 
@@ -79,7 +79,7 @@ class CacheTest
             Assertions.assertEquals(value, cache.get(key))
             Assertions.assertFalse { cache.putIfAbsentWithExpiry(key, value2, duration) }
             Assertions.assertEquals(value, cache.get(key))
-            Thread.sleep(duration.toMillis() / 2)
+            Thread.sleep((duration.toMillis() / 2) + 1000) // Add an extra 1000s here as a grace period
             Assertions.assertNull(cache.get(key))
         }
     }

@@ -2,7 +2,7 @@ package au.kilemonn.dcache.cache.redis
 
 import au.kilemonn.dcache.cache.Cache
 import au.kilemonn.dcache.cache.CacheTest
-import au.kilemonn.dcache.config.ContextListener
+import au.kilemonn.dcache.config.DCacheConfiguration
 import au.kilemonn.dcache.manager.CacheManager
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.Assertions
@@ -33,7 +33,7 @@ import kotlin.test.Test
     "dcache.cache.redis-cache.key_class=java.lang.String",
     "dcache.cache.redis-cache.value_class=java.lang.String"])
 @ContextConfiguration(initializers = [RedisCacheTest.Initializer::class])
-@Import(*[ContextListener::class])
+@Import(*[DCacheConfiguration::class])
 class RedisCacheTest
 {
     companion object

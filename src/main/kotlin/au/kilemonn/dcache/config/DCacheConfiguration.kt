@@ -18,8 +18,8 @@ import kotlin.collections.iterator
  *
  * @author github.com/Kilemonn
  */
-@Configuration(value = ContextListener.CONFIG_NAME)
-class ContextListener: ApplicationContextAware
+@Configuration(value = DCacheConfiguration.CONFIG_NAME)
+class DCacheConfiguration: ApplicationContextAware
 {
     companion object
     {

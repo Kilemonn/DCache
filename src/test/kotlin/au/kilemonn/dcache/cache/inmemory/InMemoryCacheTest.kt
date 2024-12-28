@@ -2,8 +2,7 @@ package au.kilemonn.dcache.cache.inmemory
 
 import au.kilemonn.dcache.cache.Cache
 import au.kilemonn.dcache.cache.CacheTest
-import au.kilemonn.dcache.cache.inmemory.InMemoryCache
-import au.kilemonn.dcache.config.ContextListener
+import au.kilemonn.dcache.config.DCacheConfiguration
 import au.kilemonn.dcache.manager.CacheManager
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.extension.ExtendWith
@@ -28,7 +27,7 @@ import kotlin.test.Test
     "dcache.cache.in-mem-name2.type=IN_MEMORY",
     "dcache.cache.in-mem-name2.key_class=java.lang.String",
     "dcache.cache.in-mem-name2.value_class=java.lang.String"])
-@Import(*[ContextListener::class])
+@Import(*[DCacheConfiguration::class])
 class InMemoryCacheTest
 {
     @Autowired
