@@ -26,7 +26,7 @@ class ContextListener: ApplicationContextAware
         // Incase the caches are not ready you can add @DependsOn() with this configuration name
         const val CONFIG_NAME = "dcache-init"
 
-        private const val DCACHE_CONFIG_PREFIX = "dcache.cache."
+        internal const val DCACHE_CONFIG_PREFIX = "dcache.cache."
 
         // Incase the caches are not ready you can add @DependsOn() with the cache manager name
         const val DCACHE_CACHE_MANAGER = "dcache.cache.manager"
@@ -78,18 +78,25 @@ class ContextListener: ApplicationContextAware
 
         for (entry in cacheEntries)
         {
+            // TODO: How can I maintain a single connection to redis/memcache instead of creating new connections per?
+            // TODO: Or how to specify a configuration to reuse an existing connection?
             configs.add(CacheConfiguration.from(entry.key, entry.value))
         }
 
         return configs
     }
 
-    private fun getCacheIdsAndPropertiesMap(map: Map<String, Any>): Map<String, Map<String, Any>>
+    internal fun getCacheIdsAndPropertiesMap(map: Map<String, Any>): Map<String, Map<String, Any>>
     {
         val props = HashMap<String, HashMap<String, Any>>()
         for (key in map.keys)
         {
             val id = getPropertyID(key)
+            if (id.isBlank())
+            {
+                continue
+            }
+
             if (props.contains(id))
             {
                 val m = props[id]
@@ -106,14 +113,29 @@ class ContextListener: ApplicationContextAware
         return props
     }
 
-    private fun getPropertyID(str: String): String
+    internal fun getPropertyID(str: String): String
     {
-        return str.substring(DCACHE_CONFIG_PREFIX.length, str.indexOf(".", DCACHE_CONFIG_PREFIX.length))
+        if (!str.startsWith(DCACHE_CONFIG_PREFIX))
+        {
+            return ""
+        }
+
+        val periodIndex = str.indexOf(".", DCACHE_CONFIG_PREFIX.length)
+        if (periodIndex == -1)
+        {
+            return ""
+        }
+        return str.substring(DCACHE_CONFIG_PREFIX.length, periodIndex)
     }
 
-    private fun getPropertyForID(str: String, id: String): String
+    internal fun getPropertyForID(str: String, id: String): String
     {
         // Doing +1 to remove the training "."
-        return str.substring((DCACHE_CONFIG_PREFIX + id + 1).length)
+        val startIndex = (DCACHE_CONFIG_PREFIX + id).length + 1
+        if (!str.startsWith(DCACHE_CONFIG_PREFIX) || startIndex > str.length)
+        {
+            return ""
+        }
+        return str.substring(startIndex)
     }
 }

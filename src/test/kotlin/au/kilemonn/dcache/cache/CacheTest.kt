@@ -2,7 +2,6 @@ package au.kilemonn.dcache.cache
 
 import org.junit.jupiter.api.Assertions
 import java.util.function.Supplier
-import kotlin.time.Duration
 
 /**
  * Contains different cache tests to share test scenarios between test classes.
