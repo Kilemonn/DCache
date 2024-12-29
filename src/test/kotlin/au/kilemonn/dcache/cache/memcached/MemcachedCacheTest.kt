@@ -2,6 +2,8 @@ package au.kilemonn.dcache.cache.memcached
 
 import au.kilemonn.dcache.cache.Cache
 import au.kilemonn.dcache.cache.CacheTest
+import au.kilemonn.dcache.config.CacheConfiguration
+import au.kilemonn.dcache.config.CacheType
 import au.kilemonn.dcache.config.DCacheConfiguration
 import au.kilemonn.dcache.manager.CacheManager
 import org.junit.jupiter.api.AfterAll
@@ -108,6 +110,27 @@ class MemcachedCacheTest
 
     @Autowired
     private lateinit var manager: CacheManager
+
+    @Test
+    fun testConstructor_nonStringKeyClass()
+    {
+        val keyClass = Integer::class.java.name
+        val valueClass = String.javaClass.name
+        val config = CacheConfiguration("testConstructor_nonStringKeyClass", CacheType.MEMCACHED, keyClass, valueClass)
+        Assertions.assertThrows(IllegalArgumentException::class.java) { config.buildCache() }
+    }
+
+    @Test
+    fun testConstructor_noEndpoint()
+    {
+        val keyClassName = String::class.java.name
+        val keyClass = Class.forName(keyClassName)
+        val valueClass = Integer::class.java.name
+        val config = CacheConfiguration("testConstructor_noEndpoint", CacheType.MEMCACHED, keyClassName, valueClass)
+        Assertions.assertTrue { String::class.java == keyClass || java.lang.String::class == keyClass }
+        Assertions.assertTrue { config.getEndpoint().isBlank() }
+        Assertions.assertThrows(IllegalArgumentException::class.java) { config.buildCache() }
+    }
 
     @Test
     fun testManagerWired()

@@ -25,7 +25,7 @@ class MemcachedCache<K, V>(keyClass: Class<K>, valueClass: Class<V>, val config:
 
     init {
         // Memcached only supports string keys
-        if (!String::class.java.equals(keyClass) && !java.lang.String::class.equals(keyClass))
+        if (String::class.java != keyClass && java.lang.String::class != keyClass)
         {
             // TODO: Exception type
             throw IllegalArgumentException("Only key class of type \"java.lang.String\" is available for MEMCACHED cache with ID [${config.id}].")
