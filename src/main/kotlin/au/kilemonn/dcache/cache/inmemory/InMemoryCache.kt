@@ -5,6 +5,7 @@ import au.kilemonn.dcache.config.CacheConfiguration
 import com.github.benmanes.caffeine.cache.Caffeine
 import java.time.Duration
 import java.util.concurrent.CompletableFuture
+import java.util.concurrent.ConcurrentHashMap
 import java.util.function.Supplier
 
 /**
@@ -15,6 +16,7 @@ import java.util.function.Supplier
 class InMemoryCache<K, V>(keyClass: Class<K>, valueClass: Class<V>, val config: CacheConfiguration) : Cache<K, V>
 {
     private var cache: com.github.benmanes.caffeine.cache.Cache<K, V>
+    private val expiryCallbacks = ConcurrentHashMap<K, CompletableFuture<Unit>>()
 
     init {
         val builder = Caffeine.newBuilder()
@@ -61,14 +63,18 @@ class InMemoryCache<K, V>(keyClass: Class<K>, valueClass: Class<V>, val config: 
     override fun putWithExpiry(key: K, value: V, duration: Duration): Boolean
     {
         val result = put(key, value)
-        val future = CompletableFuture.supplyAsync{ delayAndExpire(key, duration) }
-        return result
-    }
+        expiryCallbacks[key]?.cancel(true)
 
-    private fun delayAndExpire(key: K, duration: Duration)
-    {
-        Thread.sleep(duration.toMillis())
-        invalidate(key)
+        val future = CompletableFuture.supplyAsync{ Thread.sleep(duration.toMillis()) }
+        expiryCallbacks[key] = future
+        future.whenComplete { result, exception ->
+            if (exception == null)
+            {
+                invalidate(key)
+            }
+            expiryCallbacks.remove(key, future)
+        }
+        return result
     }
 
     override fun putIfAbsentWithExpiry(key: K, value: V, duration: Duration): Boolean
