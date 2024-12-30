@@ -1,6 +1,7 @@
 package au.kilemonn.dcache.cache.memcached
 
 import au.kilemonn.dcache.cache.Cache
+import au.kilemonn.dcache.cache.CacheInitialisationException
 import au.kilemonn.dcache.cache.CacheTest
 import au.kilemonn.dcache.config.CacheConfiguration
 import au.kilemonn.dcache.config.CacheType
@@ -117,7 +118,7 @@ class MemcachedCacheTest
         val keyClass = Integer::class.java.name
         val valueClass = String.javaClass.name
         val config = CacheConfiguration("testConstructor_nonStringKeyClass", CacheType.MEMCACHED, keyClass, valueClass)
-        Assertions.assertThrows(IllegalArgumentException::class.java) { config.buildCache() }
+        Assertions.assertThrows(CacheInitialisationException::class.java) { config.buildCache() }
     }
 
     @Test
@@ -129,7 +130,7 @@ class MemcachedCacheTest
         val config = CacheConfiguration("testConstructor_noEndpoint", CacheType.MEMCACHED, keyClassName, valueClass)
         Assertions.assertTrue { String::class.java == keyClass || java.lang.String::class == keyClass }
         Assertions.assertTrue { config.getEndpoint().isBlank() }
-        Assertions.assertThrows(IllegalArgumentException::class.java) { config.buildCache() }
+        Assertions.assertThrows(CacheInitialisationException::class.java) { config.buildCache() }
     }
 
     @Test

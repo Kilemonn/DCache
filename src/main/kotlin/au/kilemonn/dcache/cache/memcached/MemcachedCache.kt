@@ -1,6 +1,7 @@
 package au.kilemonn.dcache.cache.memcached
 
 import au.kilemonn.dcache.cache.Cache
+import au.kilemonn.dcache.cache.CacheInitialisationException
 import au.kilemonn.dcache.config.CacheConfiguration
 import net.rubyeye.xmemcached.MemcachedClient
 import net.rubyeye.xmemcached.XMemcachedClientBuilder
@@ -27,14 +28,12 @@ class MemcachedCache<K, V>(keyClass: Class<K>, valueClass: Class<V>, val config:
         // Memcached only supports string keys
         if (String::class.java != keyClass && java.lang.String::class != keyClass)
         {
-            // TODO: Exception type
-            throw IllegalArgumentException("Only key class of type \"java.lang.String\" is available for MEMCACHED cache with ID [${config.id}].")
+            throw CacheInitialisationException(config.id, "Only key classes of type \"java.lang.String\" is available for MEMCACHED cache")
         }
 
         if (config.getEndpoint().isBlank())
         {
-            // TODO: Exception type
-            throw IllegalArgumentException("Empty endpoint provided for MEMCACHED cache with ID [${config.id}].")
+            throw CacheInitialisationException(config.id, "No endpoint provided for MEMCACHED cache.")
         }
 
         var port = config.getPort()

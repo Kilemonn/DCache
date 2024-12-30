@@ -1,6 +1,7 @@
 package au.kilemonn.dcache.cache.redis
 
 import au.kilemonn.dcache.cache.Cache
+import au.kilemonn.dcache.cache.CacheInitialisationException
 import au.kilemonn.dcache.config.CacheConfiguration
 import org.springframework.data.redis.connection.RedisStandaloneConfiguration
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory
@@ -33,8 +34,7 @@ class RedisCache<K, V>(keyClass: Class<K>, valueClass: Class<V>, val config: Cac
     {
         if (config.getEndpoint().isBlank())
         {
-            // TODO: exception type
-            throw IllegalArgumentException("Empty endpoint provided for REDIS cache with ID [${config.id}].")
+            throw CacheInitialisationException(config.id, "No endpoint provided for REDIS cache.")
         }
         var port = config.getPort()
         if (port == 0)
@@ -48,14 +48,13 @@ class RedisCache<K, V>(keyClass: Class<K>, valueClass: Class<V>, val config: Cac
         return redisConfiguration
     }
 
-    private fun initialiseRedisTemplate(): RedisTemplate<K, V>
+    private fun initialiseRedisTemplate()
     {
         val connFactory = LettuceConnectionFactory(initialiseRedisConfiguration())
         connFactory.start()
         template.connectionFactory = connFactory
         template.keySerializer = StringRedisSerializer()
         template.afterPropertiesSet()
-        return template
     }
 
     override fun get(key: K): V?

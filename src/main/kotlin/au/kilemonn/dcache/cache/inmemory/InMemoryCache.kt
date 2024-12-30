@@ -15,7 +15,7 @@ import java.util.function.Supplier
  */
 class InMemoryCache<K, V>(keyClass: Class<K>, valueClass: Class<V>, val config: CacheConfiguration) : Cache<K, V>
 {
-    private var cache: com.github.benmanes.caffeine.cache.Cache<K, V>
+    private val cache: com.github.benmanes.caffeine.cache.Cache<K, V>
     private val expiryCallbacks = ConcurrentHashMap<K, CompletableFuture<Unit>>()
 
     init {
