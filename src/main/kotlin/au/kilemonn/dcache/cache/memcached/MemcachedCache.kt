@@ -15,7 +15,7 @@ import java.util.function.Supplier
  *
  * @author github.com/Kilemonn
  */
-class MemcachedCache<K, V>(keyClass: Class<K>, valueClass: Class<V>, val config: CacheConfiguration): Cache<K, V>
+class MemcachedCache<K, V>(keyClass: Class<K>, valueClass: Class<V>, val config: CacheConfiguration<K, V>): Cache<K, V>(keyClass, valueClass)
 {
     companion object
     {
@@ -46,49 +46,19 @@ class MemcachedCache<K, V>(keyClass: Class<K>, valueClass: Class<V>, val config:
         cache = builder.build()
     }
 
-    override fun get(key: K): V?
+    override fun getInternal(key: K): V?
     {
-        return cache.get(withPrefix(key) as String)
+        return cache.get(key as String)
     }
 
-    override fun getWithDefault(key: K, default: V): V
+    override fun putInternal(key: K, value: V): Boolean
     {
-        return Optional.ofNullable<V>(cache.get(withPrefix(key) as String)).orElse(default)
-    }
-
-    override fun getWithDefault(key: K, defaultSupplier: Supplier<V>): V
-    {
-        return Optional.ofNullable<V>(cache.get(withPrefix(key) as String)).orElse(defaultSupplier.get())
-    }
-
-    override fun put(key: K, value: V): Boolean
-    {
-        return cache.set(withPrefix(key) as String, 0, value)
-    }
-
-    override fun putIfAbsent(key: K, value: V): Boolean
-    {
-        get(key)?.let { // Value exists
-            return false
-        } ?: run { // Value does not exist
-            // Don't perform prefix here
-            return put(key, value)
-        }
+        return cache.set(key as String, 0, value)
     }
 
     override fun putWithExpiry(key: K, value: V, duration: Duration): Boolean
     {
         return cache.set(withPrefix(key) as String, duration.seconds.toInt(), value)
-    }
-
-    override fun putIfAbsentWithExpiry(key: K, value: V, duration: Duration): Boolean
-    {
-        get(key)?.let { // Value exists
-            return false
-        } ?: run { // Value does not exist
-            // Don't perform prefix here
-            return putWithExpiry(key, value, duration)
-        }
     }
 
     override fun invalidate(key: K)
@@ -99,5 +69,10 @@ class MemcachedCache<K, V>(keyClass: Class<K>, valueClass: Class<V>, val config:
     override fun getPrefix(): String
     {
         return config.getPrefix()
+    }
+
+    override fun getConfiguration(): CacheConfiguration<K, V>?
+    {
+        return config
     }
 }

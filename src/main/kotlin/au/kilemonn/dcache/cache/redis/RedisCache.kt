@@ -17,7 +17,7 @@ import kotlin.time.toJavaDuration
  *
  * @author github.com/Kilemonn
  */
-class RedisCache<K, V>(keyClass: Class<K>, valueClass: Class<V>, val config: CacheConfiguration) : Cache<K, V>
+class RedisCache<K, V>(keyClass: Class<K>, valueClass: Class<V>, val config: CacheConfiguration<K, V>) : Cache<K, V>(keyClass, valueClass)
 {
     companion object
     {
@@ -57,30 +57,28 @@ class RedisCache<K, V>(keyClass: Class<K>, valueClass: Class<V>, val config: Cac
         template.afterPropertiesSet()
     }
 
-    override fun get(key: K): V?
+    override fun getInternal(key: K): V?
     {
-        return template.opsForValue().get(withPrefix(key))
+        return template.opsForValue().get(key)
     }
 
-    override fun getWithDefault(key: K, default: V): V
+    override fun putInternal(key: K, value: V): Boolean
     {
-        return Optional<V>.ofNullable(template.opsForValue().get(withPrefix(key))).orElse(default)
-    }
-
-    override fun getWithDefault(key: K, defaultSupplier: Supplier<V>): V
-    {
-        return Optional<V>.ofNullable(template.opsForValue().get(withPrefix(key))).orElse(defaultSupplier.get())
-    }
-
-    override fun put(key: K, value: V): Boolean
-    {
-        template.opsForValue().set(withPrefix(key), value)
+        template.opsForValue().set(key, value)
         // TODO: return value
         return true
     }
 
+    /**
+     * Overriding, since redis has a proper call for this method.
+     *
+     * Since this is overriding we need to ensure we call the ensure functions.
+     */
     override fun putIfAbsent(key: K, value: V): Boolean
     {
+        ensureKeyType(key)
+        ensureValueType(value)
+
         return template.opsForValue().setIfAbsent(withPrefix(key), value)
     }
 
@@ -91,16 +89,6 @@ class RedisCache<K, V>(keyClass: Class<K>, valueClass: Class<V>, val config: Cac
         return result
     }
 
-    override fun putIfAbsentWithExpiry(key: K, value: V, duration: Duration): Boolean
-    {
-        get(key)?.let { // Value exists
-            return false
-        } ?: run { // Value does not exist
-            // Don't perform prefix here
-            return putWithExpiry(key, value, duration)
-        }
-    }
-
     override fun invalidate(key: K)
     {
         template.opsForValue().getAndDelete(withPrefix(key))
@@ -109,5 +97,10 @@ class RedisCache<K, V>(keyClass: Class<K>, valueClass: Class<V>, val config: Cac
     override fun getPrefix(): String
     {
         return config.getPrefix()
+    }
+
+    override fun getConfiguration(): CacheConfiguration<K, V>?
+    {
+        return config
     }
 }

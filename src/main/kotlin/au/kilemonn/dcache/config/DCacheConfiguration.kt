@@ -54,13 +54,19 @@ class DCacheConfiguration: ApplicationContextAware
                 entry.key.startsWith(DCACHE_CONFIG_PREFIX)
             }.toMap()
 
-        val configurations = initialiseCacheConfigurations(dcacheProps)
+        // TODO: How can I maintain a single connection to redis/memcache instead of creating new connections per?
+        // TODO: Or how to specify a configuration to reuse an existing connection?
+        val cacheEntries = getCacheIdsAndPropertiesMap(dcacheProps)
         val caches = HashMap<String, Cache<*,*>>()
-        for (configuration in configurations)
+        for (cacheEntry in cacheEntries)
         {
-            val cache = configuration.buildCache()
-            caches.put(configuration.id, cache)
-            context.beanFactory.registerSingleton(configuration.id, cache)
+            val keyClass = Class.forName(cacheEntry.value[CacheConfiguration.KEY_CLASS].toString())
+            val valueClass = Class.forName(cacheEntry.value[CacheConfiguration.VALUE_CLASS].toString())
+            val type = CacheType.valueOf(cacheEntry.value[CacheConfiguration.TYPE].toString())
+            val config = CacheConfiguration(cacheEntry.key, type, keyClass, valueClass, cacheEntry.value)
+            val cache = config.buildCache()
+            caches.put(config.id, cache)
+            context.beanFactory.registerSingleton(config.id, cache)
         }
 
         return CacheManager(caches)
@@ -69,21 +75,6 @@ class DCacheConfiguration: ApplicationContextAware
     override fun setApplicationContext(applicationContext: ApplicationContext)
     {
         context = applicationContext as GenericApplicationContext
-    }
-
-    private fun initialiseCacheConfigurations(map: Map<String, Any>): List<CacheConfiguration>
-    {
-        val cacheEntries = getCacheIdsAndPropertiesMap(map)
-        val configs = ArrayList<CacheConfiguration>()
-
-        for (entry in cacheEntries)
-        {
-            // TODO: How can I maintain a single connection to redis/memcache instead of creating new connections per?
-            // TODO: Or how to specify a configuration to reuse an existing connection?
-            configs.add(CacheConfiguration.from(entry.key, entry.value))
-        }
-
-        return configs
     }
 
     internal fun getCacheIdsAndPropertiesMap(map: Map<String, Any>): Map<String, Map<String, Any>>

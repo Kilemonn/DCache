@@ -1,6 +1,7 @@
 package au.kilemonn.dcache.config
 
 import au.kilemonn.dcache.cache.Cache
+import au.kilemonn.dcache.cache.CacheInitialisationException
 import au.kilemonn.dcache.cache.inmemory.InMemoryCache
 import au.kilemonn.dcache.cache.memcached.MemcachedCache
 import au.kilemonn.dcache.cache.redis.RedisCache
@@ -12,7 +13,7 @@ import java.util.Optional
  *
  * @author github.com/Kilemonn
  */
-class CacheConfiguration
+class CacheConfiguration<K, V>
 {
     companion object
     {
@@ -24,40 +25,12 @@ class CacheConfiguration
         const val PORT: String = "port"
         const val MAX_ENTRIES: String = "max_entries"
         const val EXPIRATION_FROM_WRITE: String = "expiration_from_write"
-
-        fun from(id: String, map: Map<String, Any>): CacheConfiguration
-        {
-            Optional<String>.ofNullable(map[TYPE]).orElseThrow { MissingPropertyException(id, TYPE) }
-            Optional<String>.ofNullable(map[KEY_CLASS]).orElseThrow { MissingPropertyException(id, KEY_CLASS) }
-            Optional<String>.ofNullable(map[VALUE_CLASS]).orElseThrow { MissingPropertyException(id, VALUE_CLASS) }
-
-            // TODO: Add invalid cache type handling
-            val type = CacheType.valueOf(map[TYPE].toString())
-            val config = CacheConfiguration(id, type, map[KEY_CLASS].toString(), map[VALUE_CLASS].toString())
-
-            config.withPrefix(Optional<String>.ofNullable(map[PREFIX]).orElse("").toString())
-                .withEndpoint(Optional<String>.ofNullable(map[ENDPOINT]).orElse("").toString())
-                .withPort((Optional<Int>.ofNullable(map[PORT]).orElse(0)).toString().toInt())
-                .withMaxEntries((Optional<Long>.ofNullable(map[MAX_ENTRIES]).orElse(0L)).toString().toLong())
-                .withExpirationFromWrite((Optional<Int>.ofNullable(map[EXPIRATION_FROM_WRITE]).orElse(0)).toString().toInt())
-
-            return config
-        }
-    }
-
-    constructor(id: String, type: CacheType, keyClassName: String, valueClassName: String)
-    {
-        this.id = id
-        this.type = type
-
-        this.keyClass = Class.forName(keyClassName)
-        this.valueClass = Class.forName(valueClassName)
     }
 
     val id: String
-    private val type: CacheType
-    private val keyClass: Class<*>
-    private val valueClass: Class<*>
+    val type: CacheType
+    private val keyClass: Class<K>
+    private val valueClass: Class<V>
 
     private var prefix: String = ""
     private var endpoint: String = ""
@@ -65,7 +38,21 @@ class CacheConfiguration
     private var maxEntries: Long = 0
     private var expirationFromWrite: Int = 0
 
-    fun withPrefix(prefix: String): CacheConfiguration
+    constructor(id: String, type: CacheType, keyClass: Class<K>, valueClass: Class<V>, options: Map<String, Any>)
+    {
+        this.id = id
+        this.type = type
+        this.keyClass = keyClass
+        this.valueClass = valueClass
+
+        this.withPrefix(Optional<String>.ofNullable(options[PREFIX]).orElse("").toString())
+            .withEndpoint(Optional<String>.ofNullable(options[ENDPOINT]).orElse("").toString())
+            .withPort((Optional<Int>.ofNullable(options[PORT]).orElse(0)).toString().toInt())
+            .withMaxEntries((Optional<Long>.ofNullable(options[MAX_ENTRIES]).orElse(0L)).toString().toLong())
+            .withExpirationFromWrite((Optional<Int>.ofNullable(options[EXPIRATION_FROM_WRITE]).orElse(0)).toString().toInt())
+    }
+
+    fun withPrefix(prefix: String): CacheConfiguration<K, V>
     {
         this.prefix = prefix
         return this
@@ -76,7 +63,7 @@ class CacheConfiguration
         return prefix
     }
 
-    fun withEndpoint(endpoint: String): CacheConfiguration
+    fun withEndpoint(endpoint: String): CacheConfiguration<K, V>
     {
         this.endpoint = endpoint
         return this
@@ -87,7 +74,7 @@ class CacheConfiguration
         return endpoint
     }
 
-    fun withPort(port: Int): CacheConfiguration
+    fun withPort(port: Int): CacheConfiguration<K, V>
     {
         this.port = port
         return this
@@ -98,7 +85,7 @@ class CacheConfiguration
         return port
     }
 
-    fun withMaxEntries(maxEntries: Long): CacheConfiguration
+    fun withMaxEntries(maxEntries: Long): CacheConfiguration<K, V>
     {
         this.maxEntries = maxEntries
         return this
@@ -109,27 +96,19 @@ class CacheConfiguration
         return maxEntries
     }
 
-    fun withExpirationFromWrite(expirationFromWrite: Int): CacheConfiguration
+    fun withExpirationFromWrite(expirationFromWrite: Int): CacheConfiguration<K, V>
     {
         this.expirationFromWrite = expirationFromWrite
         return this
     }
 
-    fun buildCache(): Cache<*, *>
+    fun buildCache(): Cache<K, V>
     {
-        if (type == CacheType.IN_MEMORY)
+        return when(type)
         {
-            return InMemoryCache(keyClass, valueClass, this)
+            CacheType.IN_MEMORY -> InMemoryCache(keyClass, valueClass, this)
+            CacheType.REDIS -> RedisCache(keyClass, valueClass, this)
+            CacheType.MEMCACHED -> MemcachedCache(keyClass, valueClass, this)
         }
-        else if (type == CacheType.REDIS)
-        {
-            return RedisCache(keyClass, valueClass, this)
-        }
-        else if (type == CacheType.MEMCACHED)
-        {
-            return MemcachedCache(keyClass, valueClass, this)
-        }
-
-        throw IllegalArgumentException("Invalid type not supported???")
     }
 }

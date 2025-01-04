@@ -115,19 +115,18 @@ class MemcachedCacheTest
     @Test
     fun testConstructor_nonStringKeyClass()
     {
-        val keyClass = Integer::class.java.name
-        val valueClass = String.javaClass.name
-        val config = CacheConfiguration("testConstructor_nonStringKeyClass", CacheType.MEMCACHED, keyClass, valueClass)
+        val keyClass = Integer::class.java
+        val valueClass = String.javaClass
+        val config = CacheConfiguration("testConstructor_nonStringKeyClass", CacheType.MEMCACHED, keyClass, valueClass, HashMap())
         Assertions.assertThrows(CacheInitialisationException::class.java) { config.buildCache() }
     }
 
     @Test
     fun testConstructor_noEndpoint()
     {
-        val keyClassName = String::class.java.name
-        val keyClass = Class.forName(keyClassName)
-        val valueClass = Integer::class.java.name
-        val config = CacheConfiguration("testConstructor_noEndpoint", CacheType.MEMCACHED, keyClassName, valueClass)
+        val keyClass = String::class.java
+        val valueClass = Integer::class.java
+        val config = CacheConfiguration("testConstructor_noEndpoint", CacheType.MEMCACHED, keyClass, valueClass, HashMap())
         Assertions.assertTrue { String::class.java == keyClass || java.lang.String::class == keyClass }
         Assertions.assertTrue { config.getEndpoint().isBlank() }
         Assertions.assertThrows(CacheInitialisationException::class.java) { config.buildCache() }
