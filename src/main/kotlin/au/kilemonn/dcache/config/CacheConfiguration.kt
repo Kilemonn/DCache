@@ -1,12 +1,10 @@
 package au.kilemonn.dcache.config
 
 import au.kilemonn.dcache.cache.Cache
-import au.kilemonn.dcache.cache.CacheInitialisationException
 import au.kilemonn.dcache.cache.inmemory.InMemoryCache
 import au.kilemonn.dcache.cache.memcached.MemcachedCache
 import au.kilemonn.dcache.cache.redis.RedisCache
 import java.util.Optional
-
 
 /**
  * Holds the defined configuration of a specific cache. These values are retrieved from the system properties.
@@ -29,8 +27,8 @@ class CacheConfiguration<K, V>
 
     val id: String
     val type: CacheType
-    private val keyClass: Class<K>
-    private val valueClass: Class<V>
+    val keyClass: Class<K>
+    val valueClass: Class<V>
 
     private var prefix: String = ""
     private var endpoint: String = ""

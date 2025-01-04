@@ -8,9 +8,6 @@ import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactor
 import org.springframework.data.redis.core.RedisTemplate
 import org.springframework.data.redis.serializer.StringRedisSerializer
 import java.time.Duration
-import java.util.Optional
-import java.util.function.Supplier
-import kotlin.time.toJavaDuration
 
 /**
  * Wraps the [RedisTemplate].

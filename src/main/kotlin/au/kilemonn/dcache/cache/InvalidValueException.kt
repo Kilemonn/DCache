@@ -1,6 +1,5 @@
 package au.kilemonn.dcache.cache
 
-
 /**
  * A custom [RuntimeException] used to indicate the provided value is of the wrong type.
  *

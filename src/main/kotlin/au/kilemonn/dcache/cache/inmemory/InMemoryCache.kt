@@ -6,7 +6,6 @@ import com.github.benmanes.caffeine.cache.Caffeine
 import java.time.Duration
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.ConcurrentHashMap
-import java.util.function.Supplier
 
 /**
  * Wraps the [Caffeine] cache.

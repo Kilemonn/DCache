@@ -1,6 +1,5 @@
 package au.kilemonn.dcache.cache
 
-import au.kilemonn.dcache.config.CacheConfiguration
 import java.time.Duration
 import java.util.Optional
 import java.util.function.Supplier

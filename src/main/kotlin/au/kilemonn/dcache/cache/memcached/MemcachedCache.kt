@@ -7,8 +7,6 @@ import net.rubyeye.xmemcached.MemcachedClient
 import net.rubyeye.xmemcached.XMemcachedClientBuilder
 import java.net.InetSocketAddress
 import java.time.Duration
-import java.util.Optional
-import java.util.function.Supplier
 
 /**
  * Wraps the [net.rubyeye.xmemcached.XMemcachedClient].
