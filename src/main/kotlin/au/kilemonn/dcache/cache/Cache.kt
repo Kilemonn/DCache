@@ -94,8 +94,6 @@ abstract class Cache<K, V>(private val keyClass: Class<K>, private val valueClas
      */
     abstract fun getPrefix(): String
 
-    abstract fun getConfiguration(): CacheConfiguration<K, V>?
-
     fun getKeyClass(): Class<K>
     {
         return keyClass

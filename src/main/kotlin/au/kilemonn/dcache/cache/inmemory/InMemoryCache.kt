@@ -65,9 +65,4 @@ class InMemoryCache<K, V>(keyClass: Class<K>, valueClass: Class<V>, val config: 
     {
         return config.getPrefix()
     }
-
-    override fun getConfiguration(): CacheConfiguration<K, V>?
-    {
-        return config
-    }
 }

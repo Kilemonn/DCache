@@ -98,9 +98,4 @@ class RedisCache<K, V>(keyClass: Class<K>, valueClass: Class<V>, val config: Cac
     {
         return config.getPrefix()
     }
-
-    override fun getConfiguration(): CacheConfiguration<K, V>?
-    {
-        return config
-    }
 }
