@@ -1,7 +1,7 @@
 package au.kilemonn.dcache.config
 
-import au.kilemonn.dcache.cache.Cache
-import au.kilemonn.dcache.manager.CacheManager
+import au.kilemonn.dcache.cache.DCache
+import au.kilemonn.dcache.manager.DCacheManager
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.ApplicationContext
 import org.springframework.context.ApplicationContextAware
@@ -39,7 +39,7 @@ class DCacheConfiguration: ApplicationContextAware
 
     @Bean(name = [DCACHE_CACHE_MANAGER])
     @Lazy(false) // Ensure that this is not lazy loaded
-    fun initialiseCacheManager(): CacheManager
+    fun initialiseCacheManager(): DCacheManager
     {
         val props = HashMap<String, Any>()
         for (source in env.propertySources)
@@ -57,19 +57,19 @@ class DCacheConfiguration: ApplicationContextAware
         // TODO: How can I maintain a single connection to redis/memcache instead of creating new connections per?
         // TODO: Or how to specify a configuration to reuse an existing connection?
         val cacheEntries = getCacheIdsAndPropertiesMap(dcacheProps)
-        val caches = HashMap<String, Cache<*,*>>()
+        val caches = HashMap<String, DCache<*,*>>()
         for (cacheEntry in cacheEntries)
         {
             val keyClass = Class.forName(cacheEntry.value[CacheConfiguration.KEY_CLASS].toString())
             val valueClass = Class.forName(cacheEntry.value[CacheConfiguration.VALUE_CLASS].toString())
-            val type = CacheType.valueOf(cacheEntry.value[CacheConfiguration.TYPE].toString())
+            val type = DCacheType.valueOf(cacheEntry.value[CacheConfiguration.TYPE].toString())
             val config = CacheConfiguration(cacheEntry.key, type, keyClass, valueClass, cacheEntry.value)
             val cache = config.buildCache()
             caches.put(config.id, cache)
             context.beanFactory.registerSingleton(config.id, cache)
         }
 
-        return CacheManager(caches)
+        return DCacheManager(caches)
     }
 
     override fun setApplicationContext(applicationContext: ApplicationContext)

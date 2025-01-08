@@ -1,9 +1,9 @@
 package au.kilemonn.dcache.cache.inmemory
 
-import au.kilemonn.dcache.cache.Cache
-import au.kilemonn.dcache.cache.CacheTest
+import au.kilemonn.dcache.cache.DCache
+import au.kilemonn.dcache.cache.DCacheTest
 import au.kilemonn.dcache.config.DCacheConfiguration
-import au.kilemonn.dcache.manager.CacheManager
+import au.kilemonn.dcache.manager.DCacheManager
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
@@ -28,40 +28,40 @@ import kotlin.test.Test
     "dcache.cache.in-mem-name2.key_class=java.lang.String",
     "dcache.cache.in-mem-name2.value_class=java.lang.String"])
 @Import(*[DCacheConfiguration::class])
-class InMemoryCacheTest
+class InMemoryDCacheTest
 {
     @Autowired
     @Qualifier("in-mem-name")
-    private lateinit var cache: Cache<String, String>
+    private lateinit var DCache: DCache<String, String>
 
     @Autowired
     @Qualifier("in-mem-name")
-    private lateinit var inmem: InMemoryCache<String, String>
+    private lateinit var inmem: InMemoryDCache<String, String>
 
     @Autowired
     @Qualifier("in-mem-name2")
-    private lateinit var cache2: Cache<String, String>
+    private lateinit var DCache2: DCache<String, String>
 
     @Autowired
-    private lateinit var cacheManager: CacheManager
+    private lateinit var DCacheManager: DCacheManager
 
     @Test
     fun testInMemoryCacheMultipleReferences()
     {
-        Assertions.assertEquals(2, cacheManager.size)
+        Assertions.assertEquals(2, DCacheManager.size)
 
         val key = "testInMemoryCache"
-        Assertions.assertNull(cache.get(key))
+        Assertions.assertNull(DCache.get(key))
         Assertions.assertNull(inmem.get(key))
-        Assertions.assertNull((cacheManager.getCache("in-mem-name").get() as Cache<String, String>).get(key))
-        Assertions.assertNull(cache2.get(key))
+        Assertions.assertNull((DCacheManager.getCache<String, String>("in-mem-name").get()).get(key))
+        Assertions.assertNull(DCache2.get(key))
 
         val value = "value"
-        cache.put(key, value)
-        Assertions.assertEquals(value, cache.get(key))
+        DCache.put(key, value)
+        Assertions.assertEquals(value, DCache.get(key))
         Assertions.assertEquals(value, inmem.get(key))
-        Assertions.assertEquals(value, (cacheManager.getCache("in-mem-name").get() as Cache<String, String>).get(key))
-        Assertions.assertNull(cache2.get(key))
+        Assertions.assertEquals(value, (DCacheManager.getCache<String, String>("in-mem-name").get()).get(key))
+        Assertions.assertNull(DCache2.get(key))
     }
 
     @Test
@@ -69,7 +69,7 @@ class InMemoryCacheTest
     {
         val key = "test_in_memory"
         val value = "in_memory_value"
-        CacheTest.testGetAndPut(key, value, cache)
+        DCacheTest.testGetAndPut(key, value, DCache)
     }
 
     @Test
@@ -77,7 +77,7 @@ class InMemoryCacheTest
     {
         val key = "testGetWithDefault"
         val value = "testGetWithDefault_value"
-        CacheTest.testGetWithDefault(key, value, cache)
+        DCacheTest.testGetWithDefault(key, value, DCache)
     }
 
     @Test
@@ -85,7 +85,7 @@ class InMemoryCacheTest
     {
         val key = "testGetWithDefaultSupplier"
         val value = "testGetWithDefaultSupplier_value"
-        CacheTest.testGetWithDefaultSupplier(key, { value }, cache)
+        DCacheTest.testGetWithDefaultSupplier(key, { value }, DCache)
     }
 
     @Test
@@ -95,7 +95,7 @@ class InMemoryCacheTest
         val value = "testPutIfAbsent_value"
         val value2 = "testPutIfAbsent_value2"
         Assertions.assertNotEquals(value, value2)
-        CacheTest.testPutIfAbsent(key, value, value2, cache)
+        DCacheTest.testPutIfAbsent(key, value, value2, DCache)
     }
 
     @Test
@@ -103,7 +103,7 @@ class InMemoryCacheTest
     {
         val key = "testInvalidate"
         val value = "testInvalidate_value"
-        CacheTest.testInvalidate(key, value, cache)
+        DCacheTest.testInvalidate(key, value, DCache)
     }
 
     @Test
@@ -111,7 +111,7 @@ class InMemoryCacheTest
     {
         val key = "testPutWithExpiry"
         val value = "testPutWithExpiry_value"
-        CacheTest.testPutWithExpiry(key, value, cache)
+        DCacheTest.testPutWithExpiry(key, value, DCache)
     }
 
     @Test
@@ -120,6 +120,6 @@ class InMemoryCacheTest
         val key = "testPutIfAbsentWithExpiry"
         val value = "testPutIfAbsentWithExpiry_value"
         val value2 = "testPutIfAbsentWithExpiry_value2"
-        CacheTest.testPutIfAbsentWithExpiry(key, value, value2, cache)
+        DCacheTest.testPutIfAbsentWithExpiry(key, value, value2, DCache)
     }
 }

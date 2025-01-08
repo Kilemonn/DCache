@@ -4,16 +4,16 @@ import org.junit.jupiter.api.Assertions
 import kotlin.test.Test
 
 /**
- * A unit test class for the [CacheInitialisationException] for any specific tests related to this exception.
+ * A unit test class for the [DCacheInitialisationException] for any specific tests related to this exception.
  *
  * @author github.com/Kilemonn
  */
-class CacheInitialisationExceptionTest
+class DCacheInitialisationExceptionTest
 {
     @Test
     fun testTypeOfExceptionIsRuntime()
     {
-        val e = CacheInitialisationException("id", "reason")
+        val e = DCacheInitialisationException("id", "reason")
         Assertions.assertTrue(RuntimeException::class.isInstance(e))
     }
 }

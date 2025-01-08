@@ -1,6 +1,6 @@
 package au.kilemonn.dcache.cache.inmemory
 
-import au.kilemonn.dcache.cache.Cache
+import au.kilemonn.dcache.cache.DCache
 import au.kilemonn.dcache.config.CacheConfiguration
 import com.github.benmanes.caffeine.cache.Caffeine
 import java.time.Duration
@@ -12,7 +12,7 @@ import java.util.concurrent.ConcurrentHashMap
  *
  * @author github.com/Kilemonn
  */
-class InMemoryCache<K, V>(keyClass: Class<K>, valueClass: Class<V>, val config: CacheConfiguration<K, V>) : Cache<K, V>(keyClass, valueClass)
+class InMemoryDCache<K, V>(keyClass: Class<K>, valueClass: Class<V>, val config: CacheConfiguration<K, V>) : DCache<K, V>(keyClass, valueClass)
 {
     private val cache: com.github.benmanes.caffeine.cache.Cache<K, V>
     private val expiryCallbacks = ConcurrentHashMap<K, CompletableFuture<Unit>>()

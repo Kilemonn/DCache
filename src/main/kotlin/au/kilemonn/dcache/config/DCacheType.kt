@@ -5,7 +5,7 @@ package au.kilemonn.dcache.config
  *
  * @author github.com/Kilemonn
  */
-enum class CacheType
+enum class DCacheType
 {
     IN_MEMORY,
     REDIS,

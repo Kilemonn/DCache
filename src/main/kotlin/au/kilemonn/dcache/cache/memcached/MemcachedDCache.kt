@@ -1,7 +1,7 @@
 package au.kilemonn.dcache.cache.memcached
 
-import au.kilemonn.dcache.cache.Cache
-import au.kilemonn.dcache.cache.CacheInitialisationException
+import au.kilemonn.dcache.cache.DCache
+import au.kilemonn.dcache.cache.DCacheInitialisationException
 import au.kilemonn.dcache.config.CacheConfiguration
 import net.rubyeye.xmemcached.MemcachedClient
 import net.rubyeye.xmemcached.XMemcachedClientBuilder
@@ -13,7 +13,7 @@ import java.time.Duration
  *
  * @author github.com/Kilemonn
  */
-class MemcachedCache<K, V>(keyClass: Class<K>, valueClass: Class<V>, val config: CacheConfiguration<K, V>): Cache<K, V>(keyClass, valueClass)
+class MemcachedDCache<K, V>(keyClass: Class<K>, valueClass: Class<V>, val config: CacheConfiguration<K, V>): DCache<K, V>(keyClass, valueClass)
 {
     companion object
     {
@@ -26,12 +26,12 @@ class MemcachedCache<K, V>(keyClass: Class<K>, valueClass: Class<V>, val config:
         // Memcached only supports string keys
         if (String::class.java != keyClass && java.lang.String::class != keyClass)
         {
-            throw CacheInitialisationException(config.id, "Only key classes of type \"java.lang.String\" is available for MEMCACHED cache")
+            throw DCacheInitialisationException(config.id, "Only key classes of type \"java.lang.String\" is available for MEMCACHED cache")
         }
 
         if (config.getEndpoint().isBlank())
         {
-            throw CacheInitialisationException(config.id, "No endpoint provided for MEMCACHED cache.")
+            throw DCacheInitialisationException(config.id, "No endpoint provided for MEMCACHED cache.")
         }
 
         var port = config.getPort()

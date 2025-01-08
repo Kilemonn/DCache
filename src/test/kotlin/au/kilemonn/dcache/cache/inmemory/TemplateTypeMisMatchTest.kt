@@ -1,6 +1,6 @@
 package au.kilemonn.dcache.cache.inmemory
 
-import au.kilemonn.dcache.cache.Cache
+import au.kilemonn.dcache.cache.DCache
 import au.kilemonn.dcache.cache.InvalidKeyException
 import au.kilemonn.dcache.cache.InvalidValueException
 import au.kilemonn.dcache.config.DCacheConfiguration
@@ -31,25 +31,25 @@ class TemplateTypeMisMatchTest
 {
     @Autowired
     @Qualifier("template-types-mismatch")
-    private lateinit var wrongKeyCache: Cache<Properties, Properties>
+    private lateinit var wrongKeyDCache: DCache<Properties, Properties>
 
     @Autowired
     @Qualifier("template-types-mismatch")
-    private lateinit var wrongValueCache: Cache<String, String>
+    private lateinit var wrongValueDCache: DCache<String, String>
 
     @Test
     fun testWrongKey()
     {
         val keyProps = Properties()
-        Assertions.assertFalse { wrongKeyCache.getKeyClass().isAssignableFrom(keyProps::class.java) }
-        Assertions.assertThrows(InvalidKeyException::class.java) { wrongKeyCache.get(keyProps) }
-        Assertions.assertThrows(InvalidKeyException::class.java) { wrongKeyCache.getWithDefault(keyProps, Properties()) }
-        Assertions.assertThrows(InvalidKeyException::class.java) { wrongKeyCache.getWithDefault(keyProps) {Properties()} }
+        Assertions.assertFalse { wrongKeyDCache.getKeyClass().isAssignableFrom(keyProps::class.java) }
+        Assertions.assertThrows(InvalidKeyException::class.java) { wrongKeyDCache.get(keyProps) }
+        Assertions.assertThrows(InvalidKeyException::class.java) { wrongKeyDCache.getWithDefault(keyProps, Properties()) }
+        Assertions.assertThrows(InvalidKeyException::class.java) { wrongKeyDCache.getWithDefault(keyProps) {Properties()} }
 
-        Assertions.assertThrows(InvalidKeyException::class.java) { wrongKeyCache.put(keyProps, Properties()) }
-        Assertions.assertThrows(InvalidKeyException::class.java) { wrongKeyCache.putWithExpiry(keyProps, Properties(), Duration.ofSeconds(10)) }
-        Assertions.assertThrows(InvalidKeyException::class.java) { wrongKeyCache.putIfAbsent(keyProps, Properties()) }
-        Assertions.assertThrows(InvalidKeyException::class.java) { wrongKeyCache.putIfAbsentWithExpiry(keyProps, Properties(), Duration.ofSeconds(10)) }
+        Assertions.assertThrows(InvalidKeyException::class.java) { wrongKeyDCache.put(keyProps, Properties()) }
+        Assertions.assertThrows(InvalidKeyException::class.java) { wrongKeyDCache.putWithExpiry(keyProps, Properties(), Duration.ofSeconds(10)) }
+        Assertions.assertThrows(InvalidKeyException::class.java) { wrongKeyDCache.putIfAbsent(keyProps, Properties()) }
+        Assertions.assertThrows(InvalidKeyException::class.java) { wrongKeyDCache.putIfAbsentWithExpiry(keyProps, Properties(), Duration.ofSeconds(10)) }
     }
 
     @Test
@@ -57,13 +57,13 @@ class TemplateTypeMisMatchTest
     {
         val key = "testWrongValue"
         val value = "wrong-value"
-        Assertions.assertTrue { wrongValueCache.getKeyClass().isAssignableFrom(key::class.java) }
-        Assertions.assertFalse { wrongValueCache.getValueClass().isAssignableFrom(value::class.java) }
-        Assertions.assertNull(wrongValueCache.get(key))
+        Assertions.assertTrue { wrongValueDCache.getKeyClass().isAssignableFrom(key::class.java) }
+        Assertions.assertFalse { wrongValueDCache.getValueClass().isAssignableFrom(value::class.java) }
+        Assertions.assertNull(wrongValueDCache.get(key))
 
-        Assertions.assertThrows(InvalidValueException::class.java) { wrongValueCache.put(key, value) }
-        Assertions.assertThrows(InvalidValueException::class.java) { wrongValueCache.putIfAbsent(key, value) }
-        Assertions.assertThrows(InvalidValueException::class.java) { wrongValueCache.putWithExpiry(key, value, Duration.ofSeconds(2)) }
-        Assertions.assertThrows(InvalidValueException::class.java) { wrongValueCache.putIfAbsentWithExpiry(key, value, Duration.ofSeconds(2)) }
+        Assertions.assertThrows(InvalidValueException::class.java) { wrongValueDCache.put(key, value) }
+        Assertions.assertThrows(InvalidValueException::class.java) { wrongValueDCache.putIfAbsent(key, value) }
+        Assertions.assertThrows(InvalidValueException::class.java) { wrongValueDCache.putWithExpiry(key, value, Duration.ofSeconds(2)) }
+        Assertions.assertThrows(InvalidValueException::class.java) { wrongValueDCache.putIfAbsentWithExpiry(key, value, Duration.ofSeconds(2)) }
     }
 }

@@ -5,11 +5,11 @@ import java.util.Optional
 import java.util.function.Supplier
 
 /**
- * Top level interface for all [Cache]s.
+ * Top level interface for all [DCache]s.
  *
  * @author github.com/Kilemonn
  */
-abstract class Cache<K, V>(private val keyClass: Class<K>, private val valueClass: Class<V>)
+abstract class DCache<K, V>(private val keyClass: Class<K>, private val valueClass: Class<V>)
 {
     fun get(key: K): V?
     {

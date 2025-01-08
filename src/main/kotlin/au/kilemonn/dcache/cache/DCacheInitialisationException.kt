@@ -5,4 +5,4 @@ package au.kilemonn.dcache.cache
  *
  * @author github.com/Kilemonn
  */
-class CacheInitialisationException(id: String, reason: String) : RuntimeException("Unable to initialise cache with ID [$id] because: [$reason].")
+class DCacheInitialisationException(id: String, reason: String) : RuntimeException("Unable to initialise cache with ID [$id] because: [$reason].")

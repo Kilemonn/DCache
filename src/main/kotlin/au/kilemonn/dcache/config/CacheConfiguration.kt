@@ -1,9 +1,9 @@
 package au.kilemonn.dcache.config
 
-import au.kilemonn.dcache.cache.Cache
-import au.kilemonn.dcache.cache.inmemory.InMemoryCache
-import au.kilemonn.dcache.cache.memcached.MemcachedCache
-import au.kilemonn.dcache.cache.redis.RedisCache
+import au.kilemonn.dcache.cache.DCache
+import au.kilemonn.dcache.cache.inmemory.InMemoryDCache
+import au.kilemonn.dcache.cache.memcached.MemcachedDCache
+import au.kilemonn.dcache.cache.redis.RedisDCache
 import java.util.Optional
 
 /**
@@ -26,7 +26,7 @@ class CacheConfiguration<K, V>
     }
 
     val id: String
-    val type: CacheType
+    val type: DCacheType
     val keyClass: Class<K>
     val valueClass: Class<V>
 
@@ -36,7 +36,7 @@ class CacheConfiguration<K, V>
     private var maxEntries: Long = 0
     private var expirationFromWrite: Int = 0
 
-    constructor(id: String, type: CacheType, keyClass: Class<K>, valueClass: Class<V>, options: Map<String, Any>)
+    constructor(id: String, type: DCacheType, keyClass: Class<K>, valueClass: Class<V>, options: Map<String, Any>)
     {
         this.id = id
         this.type = type
@@ -100,13 +100,13 @@ class CacheConfiguration<K, V>
         return this
     }
 
-    fun buildCache(): Cache<K, V>
+    fun buildCache(): DCache<K, V>
     {
         return when(type)
         {
-            CacheType.IN_MEMORY -> InMemoryCache(keyClass, valueClass, this)
-            CacheType.REDIS -> RedisCache(keyClass, valueClass, this)
-            CacheType.MEMCACHED -> MemcachedCache(keyClass, valueClass, this)
+            DCacheType.IN_MEMORY -> InMemoryDCache(keyClass, valueClass, this)
+            DCacheType.REDIS -> RedisDCache(keyClass, valueClass, this)
+            DCacheType.MEMCACHED -> MemcachedDCache(keyClass, valueClass, this)
         }
     }
 }

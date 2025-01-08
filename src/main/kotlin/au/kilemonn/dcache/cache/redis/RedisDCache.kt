@@ -1,7 +1,7 @@
 package au.kilemonn.dcache.cache.redis
 
-import au.kilemonn.dcache.cache.Cache
-import au.kilemonn.dcache.cache.CacheInitialisationException
+import au.kilemonn.dcache.cache.DCache
+import au.kilemonn.dcache.cache.DCacheInitialisationException
 import au.kilemonn.dcache.config.CacheConfiguration
 import org.springframework.data.redis.connection.RedisStandaloneConfiguration
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory
@@ -14,7 +14,7 @@ import java.time.Duration
  *
  * @author github.com/Kilemonn
  */
-class RedisCache<K, V>(keyClass: Class<K>, valueClass: Class<V>, val config: CacheConfiguration<K, V>) : Cache<K, V>(keyClass, valueClass)
+class RedisDCache<K, V>(keyClass: Class<K>, valueClass: Class<V>, val config: CacheConfiguration<K, V>) : DCache<K, V>(keyClass, valueClass)
 {
     companion object
     {
@@ -31,7 +31,7 @@ class RedisCache<K, V>(keyClass: Class<K>, valueClass: Class<V>, val config: Cac
     {
         if (config.getEndpoint().isBlank())
         {
-            throw CacheInitialisationException(config.id, "No endpoint provided for REDIS cache.")
+            throw DCacheInitialisationException(config.id, "No endpoint provided for REDIS cache.")
         }
         var port = config.getPort()
         if (port == 0)

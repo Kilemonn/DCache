@@ -1,9 +1,9 @@
 package au.kilemonn.dcache.cache.redis
 
-import au.kilemonn.dcache.cache.Cache
-import au.kilemonn.dcache.cache.CacheTest
+import au.kilemonn.dcache.cache.DCache
+import au.kilemonn.dcache.cache.DCacheTest
 import au.kilemonn.dcache.config.DCacheConfiguration
-import au.kilemonn.dcache.manager.CacheManager
+import au.kilemonn.dcache.manager.DCacheManager
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.BeforeEach
@@ -22,7 +22,7 @@ import org.testcontainers.utility.DockerImageName
 import kotlin.test.Test
 
 /**
- * A test for the [RedisCache] initialisation and wiring.
+ * A test for the [RedisDCache] initialisation and wiring.
  *
  * @author github.com/Kilemonn
  */
@@ -32,9 +32,9 @@ import kotlin.test.Test
     "dcache.cache.redis-cache.type=REDIS",
     "dcache.cache.redis-cache.key_class=java.lang.String",
     "dcache.cache.redis-cache.value_class=java.lang.String"])
-@ContextConfiguration(initializers = [RedisCacheTest.Initializer::class])
+@ContextConfiguration(initializers = [RedisDCacheTest.Initializer::class])
 @Import(*[DCacheConfiguration::class])
-class RedisCacheTest
+class RedisDCacheTest
 {
     companion object
     {
@@ -55,7 +55,7 @@ class RedisCacheTest
     }
 
     /**
-     * The test initialiser for [RedisCacheTest] to initialise the container and test properties.
+     * The test initialiser for [RedisDCacheTest] to initialise the container and test properties.
      *
      * @author github.com/Kilemonn
      */
@@ -90,10 +90,10 @@ class RedisCacheTest
 
     @Autowired
     @Qualifier("redis-cache")
-    private lateinit var cache: Cache<String, String>
+    private lateinit var DCache: DCache<String, String>
 
     @Autowired
-    private lateinit var manager: CacheManager
+    private lateinit var manager: DCacheManager
 
     @Test
     fun testManagerWired()
@@ -106,7 +106,7 @@ class RedisCacheTest
     {
         val key = "redis-key"
         val value = "some-value"
-        CacheTest.testGetAndPut(key, value, cache)
+        DCacheTest.testGetAndPut(key, value, DCache)
     }
 
     @Test
@@ -114,7 +114,7 @@ class RedisCacheTest
     {
         val key = "testGetWithDefault"
         val value = "testGetWithDefault_value"
-        CacheTest.testGetWithDefault(key, value, cache)
+        DCacheTest.testGetWithDefault(key, value, DCache)
     }
 
     @Test
@@ -122,7 +122,7 @@ class RedisCacheTest
     {
         val key = "testGetWithDefaultSupplier"
         val value = "testGetWithDefaultSupplier_value"
-        CacheTest.testGetWithDefaultSupplier(key, { value }, cache)
+        DCacheTest.testGetWithDefaultSupplier(key, { value }, DCache)
     }
 
     @Test
@@ -132,7 +132,7 @@ class RedisCacheTest
         val value = "testPutIfAbsent_value"
         val value2 = "testPutIfAbsent_value2"
         Assertions.assertNotEquals(value, value2)
-        CacheTest.testPutIfAbsent(key, value, value2, cache)
+        DCacheTest.testPutIfAbsent(key, value, value2, DCache)
     }
 
     @Test
@@ -140,7 +140,7 @@ class RedisCacheTest
     {
         val key = "testInvalidate"
         val value = "testInvalidate_value"
-        CacheTest.testInvalidate(key, value, cache)
+        DCacheTest.testInvalidate(key, value, DCache)
     }
 
     @Test
@@ -148,7 +148,7 @@ class RedisCacheTest
     {
         val key = "testPutWithExpiry"
         val value = "testPutWithExpiry_value"
-        CacheTest.testPutWithExpiry(key, value, cache)
+        DCacheTest.testPutWithExpiry(key, value, DCache)
     }
 
     @Test
@@ -157,6 +157,6 @@ class RedisCacheTest
         val key = "testPutIfAbsentWithExpiry"
         val value = "testPutIfAbsentWithExpiry_value"
         val value2 = "testPutIfAbsentWithExpiry_value2"
-        CacheTest.testPutIfAbsentWithExpiry(key, value, value2, cache)
+        DCacheTest.testPutIfAbsentWithExpiry(key, value, value2, DCache)
     }
 }
