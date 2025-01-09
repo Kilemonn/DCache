@@ -23,6 +23,7 @@ class CacheConfiguration<K, V>
         const val PORT: String = "port"
         const val MAX_ENTRIES: String = "max_entries"
         const val EXPIRATION_FROM_WRITE: String = "expiration_from_write"
+        const val IN_MEMORY_FALLBACK: String = "in_memory_fallback"
     }
 
     val id: String
@@ -34,7 +35,8 @@ class CacheConfiguration<K, V>
     private var endpoint: String = ""
     private var port: Int = 0
     private var maxEntries: Long = 0
-    private var expirationFromWrite: Int = 0
+    private var expirationFromWrite: Long = 0 // In seconds
+    private var inMemoryFallback: Boolean = false
 
     constructor(id: String, type: DCacheType, keyClass: Class<K>, valueClass: Class<V>, options: Map<String, Any>)
     {
@@ -47,7 +49,8 @@ class CacheConfiguration<K, V>
             .withEndpoint(Optional<String>.ofNullable(options[ENDPOINT]).orElse("").toString())
             .withPort((Optional<Int>.ofNullable(options[PORT]).orElse(0)).toString().toInt())
             .withMaxEntries((Optional<Long>.ofNullable(options[MAX_ENTRIES]).orElse(0L)).toString().toLong())
-            .withExpirationFromWrite((Optional<Int>.ofNullable(options[EXPIRATION_FROM_WRITE]).orElse(0)).toString().toInt())
+            .withExpirationFromWrite((Optional<Int>.ofNullable(options[EXPIRATION_FROM_WRITE]).orElse(0)).toString().toLong())
+            .withInMemoryFallback((Optional<String>.ofNullable(options[IN_MEMORY_FALLBACK]).orElse("")).toString().toBoolean())
     }
 
     fun withPrefix(prefix: String): CacheConfiguration<K, V>
@@ -94,10 +97,26 @@ class CacheConfiguration<K, V>
         return maxEntries
     }
 
-    fun withExpirationFromWrite(expirationFromWrite: Int): CacheConfiguration<K, V>
+    fun withExpirationFromWrite(expirationFromWrite: Long): CacheConfiguration<K, V>
     {
         this.expirationFromWrite = expirationFromWrite
         return this
+    }
+
+    fun getExpirationFromWrite(): Long
+    {
+        return expirationFromWrite
+    }
+
+    fun withInMemoryFallback(inMemoryFallback: Boolean): CacheConfiguration<K, V>
+    {
+        this.inMemoryFallback = inMemoryFallback
+        return this
+    }
+
+    fun getInMemoryFallback(): Boolean
+    {
+        return inMemoryFallback
     }
 
     fun buildCache(): DCache<K, V>

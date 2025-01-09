@@ -6,6 +6,7 @@ import com.github.benmanes.caffeine.cache.Caffeine
 import java.time.Duration
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.TimeUnit
 
 /**
  * Wraps the [Caffeine] cache.
@@ -22,6 +23,10 @@ class InMemoryDCache<K, V>(keyClass: Class<K>, valueClass: Class<V>, val config:
         if (config.getMaxEntries() > 0)
         {
             builder.maximumSize(config.getMaxEntries())
+        }
+        if (config.getExpirationFromWrite() > 0)
+        {
+            builder.expireAfterWrite(config.getExpirationFromWrite(), TimeUnit.SECONDS)
         }
         cache = builder.build()
     }

@@ -23,6 +23,7 @@ import org.springframework.test.context.TestPropertySource
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import org.testcontainers.containers.GenericContainer
 import org.testcontainers.utility.DockerImageName
+import java.util.Properties
 
 /**
  * A test for the [MemcachedDCache] initialisation and wiring.
@@ -103,21 +104,67 @@ class MemcachedDCacheTest
 
     @Autowired
     @Qualifier("memcached-cache")
-    private lateinit var DCache: DCache<String, String>
+    private lateinit var dCache: DCache<String, String>
 
     @Autowired
     @Qualifier("memcached-cache-with-prefix")
     private lateinit var prefixDCache: DCache<String, String>
 
     @Autowired
-    private lateinit var manager: DCacheManager
+    private lateinit var cacheManager: DCacheManager
 
     @Test
     fun testConstructor_nonStringKeyClass()
     {
         val keyClass = Integer::class.java
-        val valueClass = String.javaClass
-        val config = CacheConfiguration("testConstructor_nonStringKeyClass", DCacheType.MEMCACHED, keyClass, valueClass, HashMap())
+        val valueClass = String::class.java
+        val options = HashMap<String, Any>()
+        options[CacheConfiguration.ENDPOINT] = "localhost"
+        val config = CacheConfiguration("testConstructor_nonStringKeyClass", DCacheType.MEMCACHED, keyClass, valueClass, options)
+        Assertions.assertThrows(DCacheInitialisationException::class.java) { config.buildCache() }
+    }
+
+    @Test
+    fun testConstructor_stringKeyClass()
+    {
+        val keyClass = String::class.java
+        val valueClass = Integer::class.java
+        val options = HashMap<String, Any>()
+        options[CacheConfiguration.ENDPOINT] = "localhost"
+        val config = CacheConfiguration("testConstructor_stringKeyClass", DCacheType.MEMCACHED, keyClass, valueClass, options)
+        config.buildCache()
+    }
+
+    @Test
+    fun testConstructor_javaStringKeyClass()
+    {
+        val keyClass = java.lang.String::class.java
+        val valueClass = Integer::class.java
+        val options = HashMap<String, Any>()
+        options[CacheConfiguration.ENDPOINT] = "localhost"
+        val config = CacheConfiguration("testConstructor_stringKeyClass", DCacheType.MEMCACHED, keyClass, valueClass, options)
+        config.buildCache()
+    }
+
+    @Test
+    fun testConstructor_javaLookedUpStringKeyClass()
+    {
+        val keyClass = Class.forName("java.lang.String")
+        val valueClass = Integer::class.java
+        val options = HashMap<String, Any>()
+        options[CacheConfiguration.ENDPOINT] = "localhost"
+        val config = CacheConfiguration("testConstructor_stringKeyClass", DCacheType.MEMCACHED, keyClass, valueClass, options)
+        config.buildCache()
+    }
+
+    @Test
+    fun testConstructor_javaClassStringKeyClass()
+    {
+        val keyClass = String.javaClass
+        val valueClass = Integer::class.java
+        val options = HashMap<String, Any>()
+        options[CacheConfiguration.ENDPOINT] = "localhost"
+        val config = CacheConfiguration("testConstructor_javaClassStringKeyClass", DCacheType.MEMCACHED, keyClass, valueClass, options)
         Assertions.assertThrows(DCacheInitialisationException::class.java) { config.buildCache() }
     }
 
@@ -127,7 +174,7 @@ class MemcachedDCacheTest
         val keyClass = String::class.java
         val valueClass = Integer::class.java
         val config = CacheConfiguration("testConstructor_noEndpoint", DCacheType.MEMCACHED, keyClass, valueClass, HashMap())
-        Assertions.assertTrue { String::class.java == keyClass || java.lang.String::class == keyClass }
+        Assertions.assertTrue { String::class.java == config.keyClass || java.lang.String::class == config.keyClass }
         Assertions.assertTrue { config.getEndpoint().isBlank() }
         Assertions.assertThrows(DCacheInitialisationException::class.java) { config.buildCache() }
     }
@@ -135,7 +182,7 @@ class MemcachedDCacheTest
     @Test
     fun testManagerWired()
     {
-        Assertions.assertEquals(2, manager.size)
+        Assertions.assertEquals(2, cacheManager.size)
     }
 
     @Test
@@ -143,7 +190,7 @@ class MemcachedDCacheTest
     {
         val key = "memcached-key"
         val value = "some-value"
-        DCacheTest.testGetAndPut(key, value, DCache)
+        DCacheTest.testGetAndPut(key, value, dCache)
         DCacheTest.testGetAndPut(key, value, prefixDCache)
     }
 
@@ -152,17 +199,17 @@ class MemcachedDCacheTest
     {
         val key = "testGetWithDefault"
         val value = "testGetWithDefault_value"
-        DCacheTest.testGetWithDefault(key, value, DCache)
+        DCacheTest.testGetWithDefault(key, value, dCache)
         DCacheTest.testGetWithDefault(key, value, prefixDCache)
     }
 
     @Test
-    fun testGetWithDefaultSupplier()
+    fun testGetWithDefaultFunction()
     {
         val key = "testGetWithDefaultSupplier"
         val value = "testGetWithDefaultSupplier_value"
-        DCacheTest.testGetWithDefaultSupplier(key, { value }, DCache)
-        DCacheTest.testGetWithDefaultSupplier(key, { value }, prefixDCache)
+        DCacheTest.testGetWithDefaultFunction(key, { value }, dCache)
+        DCacheTest.testGetWithDefaultFunction(key, { value }, prefixDCache)
     }
 
     @Test
@@ -172,7 +219,7 @@ class MemcachedDCacheTest
         val value = "testPutIfAbsent_value"
         val value2 = "testPutIfAbsent_value2"
         Assertions.assertNotEquals(value, value2)
-        DCacheTest.testPutIfAbsent(key, value, value2, DCache)
+        DCacheTest.testPutIfAbsent(key, value, value2, dCache)
         DCacheTest.testPutIfAbsent(key, value, value2, prefixDCache)
     }
 
@@ -181,7 +228,7 @@ class MemcachedDCacheTest
     {
         val key = "testInvalidate"
         val value = "testInvalidate_value"
-        DCacheTest.testInvalidate(key, value, DCache)
+        DCacheTest.testInvalidate(key, value, dCache)
         DCacheTest.testInvalidate(key, value, prefixDCache)
     }
 
@@ -190,7 +237,7 @@ class MemcachedDCacheTest
     {
         val key = "testPutWithExpiry"
         val value = "testPutWithExpiry_value"
-        DCacheTest.testPutWithExpiry(key, value, DCache)
+        DCacheTest.testPutWithExpiry(key, value, dCache)
         DCacheTest.testPutWithExpiry(key, value, prefixDCache)
     }
 
@@ -200,7 +247,21 @@ class MemcachedDCacheTest
         val key = "testPutIfAbsentWithExpiry"
         val value = "testPutIfAbsentWithExpiry_value"
         val value2 = "testPutIfAbsentWithExpiry_value2"
-        DCacheTest.testPutIfAbsentWithExpiry(key, value, value2, DCache)
+        DCacheTest.testPutIfAbsentWithExpiry(key, value, value2, dCache)
         DCacheTest.testPutIfAbsentWithExpiry(key, value, value2, prefixDCache)
+    }
+
+    @Test
+    fun testConstructor_portIsZero()
+    {
+        val options = HashMap<String, Any>()
+        options[CacheConfiguration.ENDPOINT] = "localhost"
+        val config = CacheConfiguration("testConstructor_portIsZero", DCacheType.MEMCACHED, String::class.java,
+            Properties::class.java, options)
+
+        Assertions.assertTrue { String::class.java == config.keyClass || java.lang.String::class == config.keyClass }
+        Assertions.assertTrue { config.getEndpoint().isNotBlank() }
+        Assertions.assertEquals(0, config.getPort())
+        config.buildCache()
     }
 }

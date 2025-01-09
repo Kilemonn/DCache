@@ -2,7 +2,7 @@ package au.kilemonn.dcache.cache
 
 import java.time.Duration
 import java.util.Optional
-import java.util.function.Supplier
+import java.util.function.Function
 
 /**
  * Top level interface for all [DCache]s.
@@ -27,9 +27,9 @@ abstract class DCache<K, V>(private val keyClass: Class<K>, private val valueCla
         return Optional<V>.ofNullable(get(key)).orElse(default)
     }
 
-    fun getWithDefault(key: K, defaultSupplier: Supplier<V>): V
+    fun getWithDefault(key: K, defaultFunction: Function<K, V>): V
     {
-        return Optional<V>.ofNullable(get(key)).orElse(defaultSupplier.get())
+        return Optional<V>.ofNullable(get(key)).orElse(defaultFunction.apply(key))
     }
 
     /**

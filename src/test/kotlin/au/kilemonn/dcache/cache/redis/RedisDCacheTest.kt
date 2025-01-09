@@ -1,8 +1,11 @@
 package au.kilemonn.dcache.cache.redis
 
 import au.kilemonn.dcache.cache.DCache
+import au.kilemonn.dcache.cache.DCacheInitialisationException
 import au.kilemonn.dcache.cache.DCacheTest
+import au.kilemonn.dcache.config.CacheConfiguration
 import au.kilemonn.dcache.config.DCacheConfiguration
+import au.kilemonn.dcache.config.DCacheType
 import au.kilemonn.dcache.manager.DCacheManager
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.Assertions
@@ -19,6 +22,7 @@ import org.springframework.test.context.TestPropertySource
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import org.testcontainers.containers.GenericContainer
 import org.testcontainers.utility.DockerImageName
+import java.util.Properties
 import kotlin.test.Test
 
 /**
@@ -90,15 +94,15 @@ class RedisDCacheTest
 
     @Autowired
     @Qualifier("redis-cache")
-    private lateinit var DCache: DCache<String, String>
+    private lateinit var dCache: DCache<String, String>
 
     @Autowired
-    private lateinit var manager: DCacheManager
+    private lateinit var cacheManager: DCacheManager
 
     @Test
     fun testManagerWired()
     {
-        Assertions.assertEquals(1, manager.size)
+        Assertions.assertEquals(1, cacheManager.size)
     }
 
     @Test
@@ -106,7 +110,7 @@ class RedisDCacheTest
     {
         val key = "redis-key"
         val value = "some-value"
-        DCacheTest.testGetAndPut(key, value, DCache)
+        DCacheTest.testGetAndPut(key, value, dCache)
     }
 
     @Test
@@ -114,15 +118,15 @@ class RedisDCacheTest
     {
         val key = "testGetWithDefault"
         val value = "testGetWithDefault_value"
-        DCacheTest.testGetWithDefault(key, value, DCache)
+        DCacheTest.testGetWithDefault(key, value, dCache)
     }
 
     @Test
-    fun testGetWithDefaultSupplier()
+    fun testGetWithDefaultFunction()
     {
-        val key = "testGetWithDefaultSupplier"
-        val value = "testGetWithDefaultSupplier_value"
-        DCacheTest.testGetWithDefaultSupplier(key, { value }, DCache)
+        val key = "testGetWithDefaultFunction"
+        val value = "testGetWithDefaultFunction_value"
+        DCacheTest.testGetWithDefaultFunction(key, { value }, dCache)
     }
 
     @Test
@@ -132,7 +136,7 @@ class RedisDCacheTest
         val value = "testPutIfAbsent_value"
         val value2 = "testPutIfAbsent_value2"
         Assertions.assertNotEquals(value, value2)
-        DCacheTest.testPutIfAbsent(key, value, value2, DCache)
+        DCacheTest.testPutIfAbsent(key, value, value2, dCache)
     }
 
     @Test
@@ -140,7 +144,7 @@ class RedisDCacheTest
     {
         val key = "testInvalidate"
         val value = "testInvalidate_value"
-        DCacheTest.testInvalidate(key, value, DCache)
+        DCacheTest.testInvalidate(key, value, dCache)
     }
 
     @Test
@@ -148,7 +152,7 @@ class RedisDCacheTest
     {
         val key = "testPutWithExpiry"
         val value = "testPutWithExpiry_value"
-        DCacheTest.testPutWithExpiry(key, value, DCache)
+        DCacheTest.testPutWithExpiry(key, value, dCache)
     }
 
     @Test
@@ -157,6 +161,29 @@ class RedisDCacheTest
         val key = "testPutIfAbsentWithExpiry"
         val value = "testPutIfAbsentWithExpiry_value"
         val value2 = "testPutIfAbsentWithExpiry_value2"
-        DCacheTest.testPutIfAbsentWithExpiry(key, value, value2, DCache)
+        DCacheTest.testPutIfAbsentWithExpiry(key, value, value2, dCache)
+    }
+
+    @Test
+    fun testConstruct_endpointIsEmpty()
+    {
+        val config = CacheConfiguration("testConstruction_endpointIsEmpty", DCacheType.REDIS, String::class.java,
+            Properties::class.java, HashMap())
+
+        Assertions.assertTrue { config.getEndpoint().isBlank() }
+        Assertions.assertThrows(DCacheInitialisationException::class.java) { config.buildCache() }
+    }
+
+    @Test
+    fun testConstructor_portIsZero()
+    {
+        val options = HashMap<String, Any>()
+        options[CacheConfiguration.ENDPOINT] = "localhost"
+        val config = CacheConfiguration("testConstructor_portIsZero", DCacheType.REDIS, String::class.java,
+        Properties::class.java, options)
+
+        Assertions.assertTrue { config.getEndpoint().isNotBlank() }
+        Assertions.assertEquals(0, config.getPort())
+        config.buildCache()
     }
 }
