@@ -1,5 +1,6 @@
 package au.kilemonn.dcache.cache
 
+import java.io.Serializable
 import java.time.Duration
 import java.util.Optional
 import java.util.function.Function
@@ -9,7 +10,7 @@ import java.util.function.Function
  *
  * @author github.com/Kilemonn
  */
-abstract class DCache<K, V>(private val keyClass: Class<K>, private val valueClass: Class<V>)
+abstract class DCache<K, V: Serializable>(private val keyClass: Class<K>, private val valueClass: Class<V>)
 {
     fun get(key: K): V?
     {

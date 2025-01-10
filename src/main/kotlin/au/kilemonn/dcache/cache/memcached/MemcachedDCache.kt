@@ -5,6 +5,7 @@ import au.kilemonn.dcache.cache.DCacheInitialisationException
 import au.kilemonn.dcache.config.CacheConfiguration
 import net.rubyeye.xmemcached.MemcachedClient
 import net.rubyeye.xmemcached.XMemcachedClientBuilder
+import java.io.Serializable
 import java.net.InetSocketAddress
 import java.time.Duration
 
@@ -13,7 +14,7 @@ import java.time.Duration
  *
  * @author github.com/Kilemonn
  */
-class MemcachedDCache<K, V>(keyClass: Class<K>, valueClass: Class<V>, val config: CacheConfiguration<K, V>): DCache<K, V>(keyClass, valueClass)
+class MemcachedDCache<K, V: Serializable>(keyClass: Class<K>, valueClass: Class<V>, val config: CacheConfiguration<K, V>): DCache<K, V>(keyClass, valueClass)
 {
     companion object
     {

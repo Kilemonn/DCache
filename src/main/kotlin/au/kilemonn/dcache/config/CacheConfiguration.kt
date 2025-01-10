@@ -4,6 +4,7 @@ import au.kilemonn.dcache.cache.DCache
 import au.kilemonn.dcache.cache.inmemory.InMemoryDCache
 import au.kilemonn.dcache.cache.memcached.MemcachedDCache
 import au.kilemonn.dcache.cache.redis.RedisDCache
+import java.io.Serializable
 import java.util.Optional
 
 /**
@@ -11,7 +12,7 @@ import java.util.Optional
  *
  * @author github.com/Kilemonn
  */
-class CacheConfiguration<K, V>
+class CacheConfiguration<K, V: Serializable>
 {
     companion object
     {

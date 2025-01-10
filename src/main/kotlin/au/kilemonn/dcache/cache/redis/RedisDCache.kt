@@ -7,6 +7,7 @@ import org.springframework.data.redis.connection.RedisStandaloneConfiguration
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory
 import org.springframework.data.redis.core.RedisTemplate
 import org.springframework.data.redis.serializer.StringRedisSerializer
+import java.io.Serializable
 import java.time.Duration
 
 /**
@@ -14,7 +15,7 @@ import java.time.Duration
  *
  * @author github.com/Kilemonn
  */
-class RedisDCache<K, V>(keyClass: Class<K>, valueClass: Class<V>, val config: CacheConfiguration<K, V>) : DCache<K, V>(keyClass, valueClass)
+class RedisDCache<K, V: Serializable>(keyClass: Class<K>, valueClass: Class<V>, val config: CacheConfiguration<K, V>) : DCache<K, V>(keyClass, valueClass)
 {
     companion object
     {

@@ -1,6 +1,7 @@
 package au.kilemonn.dcache.cache
 
 import org.junit.jupiter.api.Assertions
+import java.io.Serializable
 import java.time.Duration
 import java.util.function.Function
 
@@ -19,26 +20,26 @@ class DCacheTest
          * Ensure the provided key does not exist (has a null value), then after putting it into the cache
          * the value is retrieved and compared with what is provided.
          */
-        fun <K, V> testGetAndPut(key: K, value: V, dCache: DCache<K, V>)
+        fun<K, V: Serializable>testGetAndPut(key: K, value: V, dCache: DCache<K, V>)
         {
             Assertions.assertNull(dCache.get(key))
             Assertions.assertTrue { dCache.put(key, value) }
             Assertions.assertEquals(value, dCache.get(key))
         }
 
-        fun <K, V> testGetWithDefault(key: K, value: V, dCache: DCache<K, V>)
+        fun<K, V: Serializable>testGetWithDefault(key: K, value: V, dCache: DCache<K, V>)
         {
             Assertions.assertNull(dCache.get(key))
             Assertions.assertEquals(value, dCache.getWithDefault(key, value))
         }
 
-        fun <K, V> testGetWithDefaultFunction(key: K, supplier: Function<K, V>, dCache: DCache<K, V>)
+        fun<K, V: Serializable>testGetWithDefaultFunction(key: K, supplier: Function<K, V>, dCache: DCache<K, V>)
         {
             Assertions.assertNull(dCache.get(key))
             Assertions.assertEquals(supplier.apply(key), dCache.getWithDefault(key, supplier))
         }
 
-        fun <K, V> testPutIfAbsent(key: K, value: V, value2: V, dCache: DCache<K, V>)
+        fun<K, V: Serializable>testPutIfAbsent(key: K, value: V, value2: V, dCache: DCache<K, V>)
         {
             Assertions.assertNull(dCache.get(key))
             Assertions.assertTrue { dCache.putIfAbsent(key, value) }
@@ -48,7 +49,7 @@ class DCacheTest
             Assertions.assertEquals(value, dCache.get(key))
         }
 
-        fun <K, V> testInvalidate(key: K, value: V, dCache: DCache<K, V>)
+        fun<K, V: Serializable>testInvalidate(key: K, value: V, dCache: DCache<K, V>)
         {
             Assertions.assertNull(dCache.get(key))
             Assertions.assertTrue { dCache.put(key, value) }
@@ -58,7 +59,7 @@ class DCacheTest
             Assertions.assertNull(dCache.get(key))
         }
 
-        fun <K, V> testPutWithExpiry(key: K, value: V, dCache: DCache<K, V>)
+        fun<K, V: Serializable>testPutWithExpiry(key: K, value: V, dCache: DCache<K, V>)
         {
             val duration = Duration.ofSeconds(4)
             Assertions.assertNull(dCache.get(key))
@@ -77,7 +78,7 @@ class DCacheTest
             Assertions.assertNull(dCache.get(key))
         }
 
-        fun <K, V> testPutIfAbsentWithExpiry(key: K, value: V, value2: V, dCache: DCache<K, V>)
+        fun<K, V: Serializable>testPutIfAbsentWithExpiry(key: K, value: V, value2: V, dCache: DCache<K, V>)
         {
             val duration = Duration.ofSeconds(4)
             Assertions.assertNull(dCache.get(key))
