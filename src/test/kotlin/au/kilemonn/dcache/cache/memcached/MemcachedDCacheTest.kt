@@ -4,8 +4,10 @@ import au.kilemonn.dcache.cache.DCache
 import au.kilemonn.dcache.cache.DCacheInitialisationException
 import au.kilemonn.dcache.cache.DCacheTest
 import au.kilemonn.dcache.config.CacheConfiguration
-import au.kilemonn.dcache.config.DCacheType
 import au.kilemonn.dcache.config.DCacheConfiguration
+import au.kilemonn.dcache.config.DCacheType
+import au.kilemonn.dcache.container.ContainerTest
+import au.kilemonn.dcache.container.MemcachedContainerTest
 import au.kilemonn.dcache.manager.DCacheManager
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.Assertions
@@ -19,17 +21,20 @@ import org.springframework.context.ApplicationContextInitializer
 import org.springframework.context.ConfigurableApplicationContext
 import org.springframework.context.annotation.Import
 import org.springframework.test.context.ContextConfiguration
+import org.springframework.test.context.DynamicPropertyRegistry
+import org.springframework.test.context.DynamicPropertySource
 import org.springframework.test.context.TestPropertySource
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import org.testcontainers.containers.GenericContainer
 import org.testcontainers.utility.DockerImageName
-import java.util.Properties
+import java.util.*
 
 /**
  * A test for the [MemcachedDCache] initialisation and wiring.
  *
  * @author github.com/Kilemonn
  */
+@ContextConfiguration(initializers = [MemcachedDCacheTest.Initializer::class])
 @ExtendWith(SpringExtension::class)
 @TestPropertySource(properties = [
     // Endpoint and port are set below
@@ -43,28 +48,9 @@ import java.util.Properties
     "dcache.cache.memcached-cache-with-prefix.value_class=java.lang.String",
     "dcache.cache.memcached-cache-with-prefix.prefix=memcache-prefix-"
 ])
-@ContextConfiguration(initializers = [MemcachedDCacheTest.Initializer::class])
 @Import(*[DCacheConfiguration::class])
-class MemcachedDCacheTest
+class MemcachedDCacheTest : MemcachedContainerTest()
 {
-    companion object
-    {
-        private const val MEMCACHED_PORT: Int = 11211
-        private const val MEMCACHED_CONTAINER: String = "memcached:1.6.34-alpine3.21"
-
-        lateinit var memcache: GenericContainer<*>
-
-        /**
-         * Stop the container at the end of all the tests.
-         */
-        @AfterAll
-        @JvmStatic
-        fun afterClass()
-        {
-            memcache.stop()
-        }
-    }
-
     /**
      * The test initialiser for [MemcachedDCacheTest] to initialise the container and test properties.
      *
@@ -79,16 +65,12 @@ class MemcachedDCacheTest
          */
         override fun initialize(configurableApplicationContext: ConfigurableApplicationContext)
         {
-            memcache = GenericContainer(DockerImageName.parse(MEMCACHED_CONTAINER))
-                .withExposedPorts(MEMCACHED_PORT).withReuse(false)
-            memcache.start()
+             TestPropertyValues.of(
+                "dcache.cache.memcached-cache.endpoint=${memcacheContainer.host}",
+                "dcache.cache.memcached-cache.port=${memcacheContainer.getMappedPort(MEMCACHED_PORT)}",
 
-            TestPropertyValues.of(
-                "dcache.cache.memcached-cache.endpoint=${memcache.host}",
-                "dcache.cache.memcached-cache.port=${memcache.getMappedPort(MEMCACHED_PORT)}",
-
-                "dcache.cache.memcached-cache-with-prefix.endpoint=${memcache.host}",
-                "dcache.cache.memcached-cache-with-prefix.port=${memcache.getMappedPort(MEMCACHED_PORT)}"
+                "dcache.cache.memcached-cache-with-prefix.endpoint=${memcacheContainer.host}",
+                "dcache.cache.memcached-cache-with-prefix.port=${memcacheContainer.getMappedPort(MEMCACHED_PORT)}"
             ).applyTo(configurableApplicationContext.environment)
         }
     }
@@ -99,7 +81,7 @@ class MemcachedDCacheTest
     @BeforeEach
     fun beforeEach()
     {
-        Assertions.assertTrue(memcache.isRunning)
+        Assertions.assertTrue(memcacheContainer.isRunning)
     }
 
     @Autowired

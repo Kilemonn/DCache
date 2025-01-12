@@ -6,6 +6,7 @@ import au.kilemonn.dcache.cache.DCacheTest
 import au.kilemonn.dcache.config.CacheConfiguration
 import au.kilemonn.dcache.config.DCacheConfiguration
 import au.kilemonn.dcache.config.DCacheType
+import au.kilemonn.dcache.container.RedisContainerTest
 import au.kilemonn.dcache.manager.DCacheManager
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.Assertions
@@ -38,26 +39,8 @@ import kotlin.test.Test
     "dcache.cache.redis-cache.value_class=java.lang.String"])
 @ContextConfiguration(initializers = [RedisDCacheTest.Initializer::class])
 @Import(*[DCacheConfiguration::class])
-class RedisDCacheTest
+class RedisDCacheTest: RedisContainerTest()
 {
-    companion object
-    {
-        private const val REDIS_PORT: Int = 6379
-        private const val REDIS_CONTAINER: String = "redis:7.4.1-alpine"
-
-        lateinit var redis: GenericContainer<*>
-
-        /**
-         * Stop the container at the end of all the tests.
-         */
-        @AfterAll
-        @JvmStatic
-        fun afterClass()
-        {
-            redis.stop()
-        }
-    }
-
     /**
      * The test initialiser for [RedisDCacheTest] to initialise the container and test properties.
      *
@@ -72,13 +55,9 @@ class RedisDCacheTest
          */
         override fun initialize(configurableApplicationContext: ConfigurableApplicationContext)
         {
-            redis = GenericContainer(DockerImageName.parse(REDIS_CONTAINER))
-                .withExposedPorts(REDIS_PORT).withReuse(false)
-            redis.start()
-
             TestPropertyValues.of(
-                "dcache.cache.redis-cache.endpoint=${redis.host}",
-                "dcache.cache.redis-cache.port=${redis.getMappedPort(REDIS_PORT)}"
+                "dcache.cache.redis-cache.endpoint=${redisContainer.host}",
+                "dcache.cache.redis-cache.port=${redisContainer.getMappedPort(REDIS_PORT)}"
             ).applyTo(configurableApplicationContext.environment)
         }
     }
@@ -89,7 +68,7 @@ class RedisDCacheTest
     @BeforeEach
     fun beforeEach()
     {
-        Assertions.assertTrue(redis.isRunning)
+        Assertions.assertTrue(redisContainer.isRunning)
     }
 
     @Autowired
