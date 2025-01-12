@@ -6,10 +6,8 @@ import au.kilemonn.dcache.cache.DCacheTest
 import au.kilemonn.dcache.config.CacheConfiguration
 import au.kilemonn.dcache.config.DCacheConfiguration
 import au.kilemonn.dcache.config.DCacheType
-import au.kilemonn.dcache.container.ContainerTest
 import au.kilemonn.dcache.container.MemcachedContainerTest
 import au.kilemonn.dcache.manager.DCacheManager
-import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -21,13 +19,10 @@ import org.springframework.context.ApplicationContextInitializer
 import org.springframework.context.ConfigurableApplicationContext
 import org.springframework.context.annotation.Import
 import org.springframework.test.context.ContextConfiguration
-import org.springframework.test.context.DynamicPropertyRegistry
-import org.springframework.test.context.DynamicPropertySource
 import org.springframework.test.context.TestPropertySource
 import org.springframework.test.context.junit.jupiter.SpringExtension
-import org.testcontainers.containers.GenericContainer
-import org.testcontainers.utility.DockerImageName
 import java.util.*
+import java.util.concurrent.TimeoutException
 
 /**
  * A test for the [MemcachedDCache] initialisation and wiring.
@@ -66,11 +61,11 @@ class MemcachedDCacheTest : MemcachedContainerTest()
         override fun initialize(configurableApplicationContext: ConfigurableApplicationContext)
         {
              TestPropertyValues.of(
-                "dcache.cache.memcached-cache.endpoint=${memcacheContainer.host}",
-                "dcache.cache.memcached-cache.port=${memcacheContainer.getMappedPort(MEMCACHED_PORT)}",
+                "dcache.cache.memcached-cache.endpoint=${memcachedContainer.host}",
+                "dcache.cache.memcached-cache.port=${memcachedContainer.getMappedPort(MEMCACHED_PORT)}",
 
-                "dcache.cache.memcached-cache-with-prefix.endpoint=${memcacheContainer.host}",
-                "dcache.cache.memcached-cache-with-prefix.port=${memcacheContainer.getMappedPort(MEMCACHED_PORT)}"
+                "dcache.cache.memcached-cache-with-prefix.endpoint=${memcachedContainer.host}",
+                "dcache.cache.memcached-cache-with-prefix.port=${memcachedContainer.getMappedPort(MEMCACHED_PORT)}"
             ).applyTo(configurableApplicationContext.environment)
         }
     }
@@ -81,7 +76,7 @@ class MemcachedDCacheTest : MemcachedContainerTest()
     @BeforeEach
     fun beforeEach()
     {
-        Assertions.assertTrue(memcacheContainer.isRunning)
+        Assertions.assertTrue(memcachedContainer.isRunning)
     }
 
     @Autowired
@@ -245,5 +240,30 @@ class MemcachedDCacheTest : MemcachedContainerTest()
         Assertions.assertTrue { config.getEndpoint().isNotBlank() }
         Assertions.assertEquals(0, config.getPort())
         config.buildCache()
+    }
+
+    @Test
+    fun cacheNotAccessible_initially()
+    {
+        val key = "cacheNotAccessible_initially"
+        val value = "cacheNotAccessible_initially_value"
+        whilePaused(memcachedContainer) {
+            Assertions.assertThrows(TimeoutException::class.java) {  DCacheTest.testGetAndPut(key, value, dCache) }
+        }
+        DCacheTest.testGetAndPut(key, value, dCache)
+    }
+
+    @Test
+    fun cacheNotAccessible_afterPreviousGet()
+    {
+        val key = "cacheNotAccessible_afterPreviousGet"
+        val value = "cacheNotAccessible_afterPreviousGet_value"
+        DCacheTest.testGetAndPut(key, value, dCache)
+
+        whilePaused(memcachedContainer) {
+            Assertions.assertThrows(TimeoutException::class.java) {  DCacheTest.testGetAndPut(key, value, dCache) }
+        }
+        dCache.invalidate(key)
+        DCacheTest.testGetAndPut(key, value, dCache)
     }
 }

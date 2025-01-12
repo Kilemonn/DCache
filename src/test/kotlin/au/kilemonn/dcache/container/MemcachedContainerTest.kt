@@ -22,7 +22,7 @@ abstract class MemcachedContainerTest : ContainerTest()
 
         @JvmStatic
         @Container
-        protected val memcacheContainer = GenericContainer(DockerImageName.parse(MEMCACHED_CONTAINER))
+        protected val memcachedContainer = GenericContainer(DockerImageName.parse(MEMCACHED_CONTAINER))
             .withExposedPorts(MEMCACHED_PORT).withReuse(false)!!
     }
 }

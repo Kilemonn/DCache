@@ -45,4 +45,20 @@ abstract class ContainerTest
     {
         return "${container.host}:${container.getMappedPort(port)}"
     }
+
+    /**
+     * [pause] the provided [container] and calls the [function] then [unpause] the container.
+     */
+    protected fun whilePaused(container: GenericContainer<*>, function: Runnable)
+    {
+        try
+        {
+            pause(container)
+            function.run()
+        }
+        finally
+        {
+            unpause(container)
+        }
+    }
 }

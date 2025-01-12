@@ -1,5 +1,6 @@
 package au.kilemonn.dcache.cache.redis
 
+import au.kilemonn.dcache.DCacheAssertions
 import au.kilemonn.dcache.cache.DCache
 import au.kilemonn.dcache.cache.DCacheInitialisationException
 import au.kilemonn.dcache.cache.DCacheTest
@@ -18,6 +19,8 @@ import org.springframework.boot.test.util.TestPropertyValues
 import org.springframework.context.ApplicationContextInitializer
 import org.springframework.context.ConfigurableApplicationContext
 import org.springframework.context.annotation.Import
+import org.springframework.dao.QueryTimeoutException
+import org.springframework.data.redis.RedisConnectionFailureException
 import org.springframework.test.context.ContextConfiguration
 import org.springframework.test.context.TestPropertySource
 import org.springframework.test.context.junit.jupiter.SpringExtension
@@ -164,5 +167,32 @@ class RedisDCacheTest: RedisContainerTest()
         Assertions.assertTrue { config.getEndpoint().isNotBlank() }
         Assertions.assertEquals(0, config.getPort())
         config.buildCache()
+    }
+
+    @Test
+    fun cacheNotAccessible_initially()
+    {
+        val key = "cacheNotAccessible_initially"
+        val value = "cacheNotAccessible_initially_value"
+        whilePaused(redisContainer) {
+            DCacheAssertions.assertThrowsAny(listOf(RedisConnectionFailureException::class.java, QueryTimeoutException::class.java) as List<Class<Throwable>>) {
+                DCacheTest.testGetAndPut(key, value, dCache)
+            }
+        }
+        DCacheTest.testGetAndPut(key, value, dCache)
+    }
+
+    @Test
+    fun cacheNotAccessible_afterPreviousGet()
+    {
+        val key = "cacheNotAccessible_afterPreviousGet"
+        val value = "cacheNotAccessible_afterPreviousGet_value"
+        DCacheTest.testGetAndPut(key, value, dCache)
+
+        whilePaused(redisContainer) {
+            Assertions.assertThrows(QueryTimeoutException::class.java) {  DCacheTest.testGetAndPut(key, value, dCache) }
+        }
+        dCache.invalidate(key)
+        DCacheTest.testGetAndPut(key, value, dCache)
     }
 }

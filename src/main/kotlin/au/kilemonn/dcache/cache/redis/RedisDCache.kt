@@ -4,6 +4,7 @@ import au.kilemonn.dcache.cache.DCache
 import au.kilemonn.dcache.cache.DCacheInitialisationException
 import au.kilemonn.dcache.config.CacheConfiguration
 import org.springframework.data.redis.connection.RedisStandaloneConfiguration
+import org.springframework.data.redis.connection.lettuce.LettuceClientConfiguration
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory
 import org.springframework.data.redis.core.RedisTemplate
 import org.springframework.data.redis.serializer.StringRedisSerializer
@@ -48,7 +49,10 @@ class RedisDCache<K, V: Serializable>(keyClass: Class<K>, valueClass: Class<V>, 
 
     private fun initialiseRedisTemplate()
     {
-        val connFactory = LettuceConnectionFactory(initialiseRedisConfiguration())
+        val builder = LettuceClientConfiguration.builder()
+        builder.commandTimeout(Duration.ofSeconds(2))
+
+        val connFactory = LettuceConnectionFactory(initialiseRedisConfiguration(), builder.build())
         connFactory.start()
         template.connectionFactory = connFactory
         template.keySerializer = StringRedisSerializer()
