@@ -12,6 +12,8 @@ import java.util.function.Function
  */
 abstract class DCache<K, V: Serializable>(private val keyClass: Class<K>, private val valueClass: Class<V>)
 {
+    protected var fallbackCache: DCache<K, V>? = null
+
     fun get(key: K): V?
     {
         ensureKeyType(key)
@@ -114,9 +116,26 @@ abstract class DCache<K, V: Serializable>(private val keyClass: Class<K>, privat
 
     fun ensureValueType(value: V)
     {
-        if (!getValueClass().isAssignableFrom(value!!::class.java))
+        if (!getValueClass().isAssignableFrom(value::class.java))
         {
             throw InvalidValueException(value::class.java, getValueClass())
         }
     }
+
+    fun setFallback(fallbackCache: DCache<*, *>)
+    {
+        if (!getKeyClass().isAssignableFrom(fallbackCache.getKeyClass()))
+        {
+            throw DCacheInitialisationException(getCacheName(), "Fallback cache key type ${fallbackCache.getKeyClass().name} is not assignable from configured cache key type ${getKeyClass().name}")
+        }
+
+        if (!getValueClass().isAssignableFrom(fallbackCache.getValueClass()))
+        {
+            throw DCacheInitialisationException(getCacheName(), "Fallback cache value type ${fallbackCache.getValueClass().name} is not assignable from configured cache value type ${getValueClass().name}")
+        }
+
+        this.fallbackCache = fallbackCache as DCache<K, V>?
+    }
+
+    abstract fun getCacheName(): String
 }

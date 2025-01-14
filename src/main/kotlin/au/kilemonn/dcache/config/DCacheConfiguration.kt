@@ -1,7 +1,6 @@
 package au.kilemonn.dcache.config
 
 import au.kilemonn.dcache.cache.DCache
-import au.kilemonn.dcache.cache.DCacheInitialisationException
 import au.kilemonn.dcache.cache.InvalidValueException
 import au.kilemonn.dcache.manager.DCacheManager
 import org.springframework.beans.factory.annotation.Autowired
@@ -61,6 +60,7 @@ class DCacheConfiguration: ApplicationContextAware
         // TODO: Or how to specify a configuration to reuse an existing connection?
         val cacheEntries = getCacheIdsAndPropertiesMap(dcacheProps)
         val caches = HashMap<String, DCache<*, Serializable>>()
+        val fallbackPairs = ArrayList<Pair<DCache<*, Serializable>, String>>()
         for (cacheEntry in cacheEntries)
         {
             val keyClass = Class.forName(cacheEntry.value[CacheConfiguration.KEY_CLASS].toString())
@@ -74,6 +74,17 @@ class DCacheConfiguration: ApplicationContextAware
             val cache = config.buildCache()
             caches.put(config.id, cache)
             context.beanFactory.registerSingleton(config.id, cache)
+
+            if (config.getFallback().isNotBlank())
+            {
+                fallbackPairs.add(Pair(cache, config.getFallback()))
+            }
+        }
+
+        for (fallbackPair in fallbackPairs)
+        {
+            val fallbackCache = context.beanFactory.getBean(fallbackPair.second, DCache::class.java)
+            fallbackPair.first.setFallback(fallbackCache)
         }
 
         return DCacheManager(caches)

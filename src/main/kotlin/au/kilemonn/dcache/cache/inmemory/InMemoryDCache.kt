@@ -70,4 +70,9 @@ class InMemoryDCache<K, V: Serializable>(keyClass: Class<K>, valueClass: Class<V
     {
         return config.getPrefix()
     }
+
+    override fun getCacheName(): String
+    {
+        return config.id
+    }
 }

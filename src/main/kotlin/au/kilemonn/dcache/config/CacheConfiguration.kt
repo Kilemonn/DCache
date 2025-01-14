@@ -24,7 +24,7 @@ class CacheConfiguration<K, V: Serializable>
         const val PORT: String = "port"
         const val MAX_ENTRIES: String = "max_entries"
         const val EXPIRATION_FROM_WRITE: String = "expiration_from_write"
-        const val IN_MEMORY_FALLBACK: String = "in_memory_fallback"
+        const val FALLBACK: String = "fallback"
     }
 
     val id: String
@@ -37,7 +37,7 @@ class CacheConfiguration<K, V: Serializable>
     private var port: Int = 0
     private var maxEntries: Long = 0
     private var expirationFromWrite: Long = 0 // In seconds
-    private var inMemoryFallback: Boolean = false
+    private var fallback: String = ""
 
     constructor(id: String, type: DCacheType, keyClass: Class<K>, valueClass: Class<V>, options: Map<String, Any>)
     {
@@ -51,7 +51,7 @@ class CacheConfiguration<K, V: Serializable>
             .withPort((Optional<Int>.ofNullable(options[PORT]).orElse(0)).toString().toInt())
             .withMaxEntries((Optional<Long>.ofNullable(options[MAX_ENTRIES]).orElse(0L)).toString().toLong())
             .withExpirationFromWrite((Optional<Int>.ofNullable(options[EXPIRATION_FROM_WRITE]).orElse(0)).toString().toLong())
-            .withInMemoryFallback((Optional<String>.ofNullable(options[IN_MEMORY_FALLBACK]).orElse("")).toString().toBoolean())
+            .withFallback((Optional<String>.ofNullable(options[FALLBACK]).orElse("")).toString())
     }
 
     fun withPrefix(prefix: String): CacheConfiguration<K, V>
@@ -109,15 +109,15 @@ class CacheConfiguration<K, V: Serializable>
         return expirationFromWrite
     }
 
-    fun withInMemoryFallback(inMemoryFallback: Boolean): CacheConfiguration<K, V>
+    fun withFallback(fallback: String): CacheConfiguration<K, V>
     {
-        this.inMemoryFallback = inMemoryFallback
+        this.fallback = fallback
         return this
     }
 
-    fun getInMemoryFallback(): Boolean
+    fun getFallback(): String
     {
-        return inMemoryFallback
+        return fallback
     }
 
     fun buildCache(): DCache<K, V>

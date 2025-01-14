@@ -8,6 +8,7 @@ import net.rubyeye.xmemcached.XMemcachedClientBuilder
 import java.io.Serializable
 import java.net.InetSocketAddress
 import java.time.Duration
+import java.util.concurrent.TimeoutException
 
 /**
  * Wraps the [net.rubyeye.xmemcached.XMemcachedClient].
@@ -48,7 +49,14 @@ class MemcachedDCache<K, V: Serializable>(keyClass: Class<K>, valueClass: Class<
 
     override fun getInternal(key: K): V?
     {
-        return cache.get(key as String)
+        return try
+        {
+            cache.get(key as String)
+        }
+        catch (e: TimeoutException)
+        {
+            null
+        }
     }
 
     override fun putInternal(key: K, value: V): Boolean
@@ -69,5 +77,10 @@ class MemcachedDCache<K, V: Serializable>(keyClass: Class<K>, valueClass: Class<
     override fun getPrefix(): String
     {
         return config.getPrefix()
+    }
+
+    override fun getCacheName(): String
+    {
+        return config.id
     }
 }
