@@ -3,6 +3,8 @@ package au.kilemonn.dcache.cache.redis
 import au.kilemonn.dcache.cache.DCache
 import au.kilemonn.dcache.cache.DCacheInitialisationException
 import au.kilemonn.dcache.config.CacheConfiguration
+import org.springframework.dao.QueryTimeoutException
+import org.springframework.data.redis.RedisConnectionFailureException
 import org.springframework.data.redis.connection.RedisStandaloneConfiguration
 import org.springframework.data.redis.connection.lettuce.LettuceClientConfiguration
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory
@@ -59,16 +61,19 @@ class RedisDCache<K, V: Serializable>(keyClass: Class<K>, valueClass: Class<V>, 
         template.afterPropertiesSet()
     }
 
-    override fun getInternal(key: K): V?
+    override fun getInternal(key: K): Result<V?>
     {
-        return template.opsForValue().get(key)
+        return runCatching {
+            return Result.success(template.opsForValue().get(key))
+        }
     }
 
-    override fun putInternal(key: K, value: V): Boolean
+    override fun putInternal(key: K, value: V): Result<Boolean>
     {
-        template.opsForValue().set(key, value)
-        // TODO: return value
-        return true
+        return runCatching {
+            template.opsForValue().set(key, value)
+            return Result.success(true)
+        }
     }
 
     /**
@@ -81,19 +86,24 @@ class RedisDCache<K, V: Serializable>(keyClass: Class<K>, valueClass: Class<V>, 
         ensureKeyType(key)
         ensureValueType(value)
 
+        // TODO: Handle connection failure
         return template.opsForValue().setIfAbsent(withPrefix(key), value)
     }
 
     override fun putWithExpiry(key: K, value: V, duration: Duration): Boolean
     {
         val result = put(key, value)
+        // TODO: Handle connection failure
         template.expire(withPrefix(key), duration)
         return result
     }
 
-    override fun invalidate(key: K)
+    override fun invalidateInternal(key: K): Result<Unit>
     {
-        template.opsForValue().getAndDelete(withPrefix(key))
+        return runCatching {
+            template.opsForValue().getAndDelete(withPrefix(key))
+            return Result.success(Unit)
+        }
     }
 
     override fun getPrefix(): String

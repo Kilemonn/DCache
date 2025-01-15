@@ -47,24 +47,32 @@ class MemcachedDCache<K, V: Serializable>(keyClass: Class<K>, valueClass: Class<
         cache = builder.build()
     }
 
-    override fun getInternal(key: K): V?
+    override fun getInternal(key: K): Result<V?>
     {
-        return cache.get(key as String)
+        return runCatching {
+            return Result.success(cache.get(key as String))
+        }
     }
 
-    override fun putInternal(key: K, value: V): Boolean
+    override fun putInternal(key: K, value: V): Result<Boolean>
     {
-        return cache.set(key as String, 0, value)
+        return runCatching {
+            return Result.success(cache.set(key as String, 0, value))
+        }
     }
 
     override fun putWithExpiry(key: K, value: V, duration: Duration): Boolean
     {
+        // TODO: Handle connection failure
         return cache.set(withPrefix(key) as String, duration.seconds.toInt(), value)
     }
 
-    override fun invalidate(key: K)
+    override fun invalidateInternal(key: K): Result<Unit>
     {
-        cache.delete(withPrefix(key) as String)
+        return runCatching {
+            cache.delete(withPrefix(key) as String)
+            return Result.success(Unit)
+        }
     }
 
     override fun getPrefix(): String

@@ -9,7 +9,6 @@ import au.kilemonn.dcache.config.DCacheConfiguration
 import au.kilemonn.dcache.config.DCacheType
 import au.kilemonn.dcache.container.RedisContainerTest
 import au.kilemonn.dcache.manager.DCacheManager
-import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.extension.ExtendWith
@@ -24,8 +23,6 @@ import org.springframework.data.redis.RedisConnectionFailureException
 import org.springframework.test.context.ContextConfiguration
 import org.springframework.test.context.TestPropertySource
 import org.springframework.test.context.junit.jupiter.SpringExtension
-import org.testcontainers.containers.GenericContainer
-import org.testcontainers.utility.DockerImageName
 import java.util.Properties
 import kotlin.test.Test
 

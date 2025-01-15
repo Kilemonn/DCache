@@ -32,16 +32,16 @@ class InMemoryDCache<K, V: Serializable>(keyClass: Class<K>, valueClass: Class<V
         cache = builder.build()
     }
 
-    override fun getInternal(key: K): V?
+    override fun getInternal(key: K): Result<V?>
     {
-        return cache.get(withPrefix(key)) { null }
+        return Result.success(cache.get(withPrefix(key)) { null })
     }
 
-    override fun putInternal(key: K, value: V): Boolean
+    override fun putInternal(key: K, value: V): Result<Boolean>
     {
         cache.put(withPrefix(key), value)
         // TODO: Return val
-        return true
+        return Result.success(true)
     }
 
     override fun putWithExpiry(key: K, value: V, duration: Duration): Boolean
@@ -54,16 +54,17 @@ class InMemoryDCache<K, V: Serializable>(keyClass: Class<K>, valueClass: Class<V
         future.whenComplete { result, exception ->
             if (exception == null)
             {
-                invalidate(key)
+                invalidateInternal(key)
             }
             expiryCallbacks.remove(key, future)
         }
         return result
     }
 
-    override fun invalidate(key: K)
+    override fun invalidateInternal(key: K): Result<Unit>
     {
         cache.invalidate(withPrefix(key))
+        return Result.success(Unit)
     }
 
     override fun getPrefix(): String

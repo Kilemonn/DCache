@@ -17,13 +17,18 @@ abstract class DCache<K, V: Serializable>(private val keyClass: Class<K>, privat
     fun get(key: K): V?
     {
         ensureKeyType(key)
-        return getInternal(withPrefix(key))
+        val result = getInternal(withPrefix(key))
+        if (result.isFailure)
+        {
+            return fallbackCache?.get(key)
+        }
+        return result.getOrNull()
     }
 
     /**
      * Provided with the key already being prefixed. Attempt to retrieve the related value from the underlying storage.
      */
-    protected abstract fun getInternal(key: K): V?
+    protected abstract fun getInternal(key: K): Result<V?>
 
     fun getWithDefault(key: K, default: V): V
     {
@@ -39,14 +44,19 @@ abstract class DCache<K, V: Serializable>(private val keyClass: Class<K>, privat
      * Having the key already prefixed, place it into the cache.
      * Returning true if the value was emplaced correctly.
      */
-    protected abstract fun putInternal(key: K, value: V): Boolean
+    protected abstract fun putInternal(key: K, value: V): Result<Boolean>
 
     fun put(key: K, value: V): Boolean
     {
         ensureKeyType(key)
         ensureValueType(value)
 
-        return putInternal(withPrefix(key), value)
+        val result = putInternal(withPrefix(key), value)
+        if (result.isFailure)
+        {
+            return fallbackCache?.put(key, value) == true
+        }
+        return result.getOrDefault(false)
     }
 
     open fun putIfAbsent(key: K, value: V): Boolean
@@ -76,7 +86,18 @@ abstract class DCache<K, V: Serializable>(private val keyClass: Class<K>, privat
         }
     }
 
-    abstract fun invalidate(key: K)
+    /**
+     * Return a throwable to indicate that the fallback cache should be called.
+     */
+    protected abstract fun invalidateInternal(key: K): Result<Unit>
+
+    fun invalidate(key: K)
+    {
+        if (invalidateInternal(key).isFailure)
+        {
+            fallbackCache?.invalidate(key)
+        }
+    }
 
     /**
      * Add the provided prefix to the key, only if the key is of type [String].
