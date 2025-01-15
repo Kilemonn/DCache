@@ -248,7 +248,9 @@ class MemcachedDCacheTest : MemcachedContainerTest()
         val key = "cacheNotAccessible_initially"
         val value = "cacheNotAccessible_initially_value"
         whilePaused(memcachedContainer) {
-            Assertions.assertThrows(TimeoutException::class.java) {  DCacheTest.testGetAndPut(key, value, dCache) }
+            Assertions.assertNull(dCache.get(key))
+            Assertions.assertFalse { dCache.put(key, value) }
+            Assertions.assertNull(dCache.get(key))
         }
         DCacheTest.testGetAndPut(key, value, dCache)
     }
@@ -261,7 +263,9 @@ class MemcachedDCacheTest : MemcachedContainerTest()
         DCacheTest.testGetAndPut(key, value, dCache)
 
         whilePaused(memcachedContainer) {
-            Assertions.assertThrows(TimeoutException::class.java) {  DCacheTest.testGetAndPut(key, value, dCache) }
+            Assertions.assertNull(dCache.get(key))
+            Assertions.assertFalse { dCache.put(key, value) }
+            Assertions.assertNull(dCache.get(key))
         }
         dCache.invalidate(key)
         DCacheTest.testGetAndPut(key, value, dCache)

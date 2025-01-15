@@ -172,9 +172,9 @@ class RedisDCacheTest: RedisContainerTest()
         val key = "cacheNotAccessible_initially"
         val value = "cacheNotAccessible_initially_value"
         whilePaused(redisContainer) {
-            DCacheAssertions.assertThrowsAny(listOf(RedisConnectionFailureException::class.java, QueryTimeoutException::class.java) as List<Class<Throwable>>) {
-                DCacheTest.testGetAndPut(key, value, dCache)
-            }
+            Assertions.assertNull(dCache.get(key))
+            Assertions.assertFalse { dCache.put(key, value) }
+            Assertions.assertNull(dCache.get(key))
         }
         DCacheTest.testGetAndPut(key, value, dCache)
     }
@@ -187,7 +187,9 @@ class RedisDCacheTest: RedisContainerTest()
         DCacheTest.testGetAndPut(key, value, dCache)
 
         whilePaused(redisContainer) {
-            Assertions.assertThrows(QueryTimeoutException::class.java) {  DCacheTest.testGetAndPut(key, value, dCache) }
+            Assertions.assertNull(dCache.get(key))
+            Assertions.assertFalse { dCache.put(key, value) }
+            Assertions.assertNull(dCache.get(key))
         }
         dCache.invalidate(key)
         DCacheTest.testGetAndPut(key, value, dCache)
