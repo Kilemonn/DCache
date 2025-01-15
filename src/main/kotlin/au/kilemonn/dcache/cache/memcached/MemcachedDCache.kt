@@ -49,14 +49,7 @@ class MemcachedDCache<K, V: Serializable>(keyClass: Class<K>, valueClass: Class<
 
     override fun getInternal(key: K): V?
     {
-        return try
-        {
-            cache.get(key as String)
-        }
-        catch (e: TimeoutException)
-        {
-            null
-        }
+        return cache.get(key as String)
     }
 
     override fun putInternal(key: K, value: V): Boolean
