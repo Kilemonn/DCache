@@ -43,7 +43,7 @@ class MemcachedDCache<K, V: Serializable>(keyClass: Class<K>, valueClass: Class<
         }
 
         val builder = XMemcachedClientBuilder(listOf(InetSocketAddress.createUnresolved(config.getEndpoint(), port)))
-        builder.opTimeout = 2 * 1000
+        builder.opTimeout = config.getTimeout()
         cache = builder.build()
     }
 

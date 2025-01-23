@@ -25,6 +25,9 @@ class CacheConfiguration<K, V: Serializable>
         const val MAX_ENTRIES: String = "max_entries"
         const val EXPIRATION_FROM_WRITE: String = "expiration_from_write"
         const val FALLBACK: String = "fallback"
+        const val TIMEOUT: String = "timeout"
+
+        const val DEFAULT_TIMEOUT: Int = 2 * 1000 // In milliseconds
     }
 
     val id: String
@@ -38,6 +41,7 @@ class CacheConfiguration<K, V: Serializable>
     private var maxEntries: Long = 0
     private var expirationFromWrite: Long = 0 // In seconds
     private var fallback: String = ""
+    private var timeoutMillis: Long = 0 // Milliseconds
 
     constructor(id: String, type: DCacheType, keyClass: Class<K>, valueClass: Class<V>, options: Map<String, Any>)
     {
@@ -52,6 +56,7 @@ class CacheConfiguration<K, V: Serializable>
             .withMaxEntries((Optional<Long>.ofNullable(options[MAX_ENTRIES]).orElse(0L)).toString().toLong())
             .withExpirationFromWrite((Optional<Int>.ofNullable(options[EXPIRATION_FROM_WRITE]).orElse(0)).toString().toLong())
             .withFallback((Optional<String>.ofNullable(options[FALLBACK]).orElse("")).toString())
+            .withTimeout((Optional<Long>.ofNullable(options[TIMEOUT]).orElse(DEFAULT_TIMEOUT)).toString().toLong())
     }
 
     fun withPrefix(prefix: String): CacheConfiguration<K, V>
@@ -118,6 +123,17 @@ class CacheConfiguration<K, V: Serializable>
     fun getFallback(): String
     {
         return fallback
+    }
+
+    fun withTimeout(timeout: Long): CacheConfiguration<K, V>
+    {
+        this.timeoutMillis = timeout
+        return this
+    }
+
+    fun getTimeout(): Long
+    {
+        return timeoutMillis
     }
 
     fun buildCache(): DCache<K, V>

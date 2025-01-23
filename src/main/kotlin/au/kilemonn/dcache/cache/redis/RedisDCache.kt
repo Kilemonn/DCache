@@ -52,7 +52,7 @@ class RedisDCache<K, V: Serializable>(keyClass: Class<K>, valueClass: Class<V>, 
     private fun initialiseRedisTemplate()
     {
         val builder = LettuceClientConfiguration.builder()
-        builder.commandTimeout(Duration.ofSeconds(2))
+        builder.commandTimeout(Duration.ofMillis(config.getTimeout()))
 
         val connFactory = LettuceConnectionFactory(initialiseRedisConfiguration(), builder.build())
         connFactory.start()
