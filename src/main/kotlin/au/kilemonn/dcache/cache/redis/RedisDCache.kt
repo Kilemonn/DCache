@@ -86,16 +86,25 @@ class RedisDCache<K, V: Serializable>(keyClass: Class<K>, valueClass: Class<V>, 
         ensureKeyType(key)
         ensureValueType(value)
 
-        // TODO: Handle connection failure
-        return template.opsForValue().setIfAbsent(withPrefix(key), value)
+        val result = runCatching {
+            val res = template.opsForValue().setIfAbsent(withPrefix(key), value)
+            return res
+        }
+        return result.getOrDefault(false)
     }
 
     override fun putWithExpiry(key: K, value: V, duration: Duration): Boolean
     {
         val result = put(key, value)
-        // TODO: Handle connection failure
-        template.expire(withPrefix(key), duration)
-        return result
+        if (!result)
+        {
+            return result
+        }
+
+        val res = runCatching {
+            return template.expire(withPrefix(key), duration)
+        }
+        return res.getOrDefault(false)
     }
 
     override fun invalidateInternal(key: K): Result<Unit>

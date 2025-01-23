@@ -63,8 +63,10 @@ class MemcachedDCache<K, V: Serializable>(keyClass: Class<K>, valueClass: Class<
 
     override fun putWithExpiry(key: K, value: V, duration: Duration): Boolean
     {
-        // TODO: Handle connection failure
-        return cache.set(withPrefix(key) as String, duration.seconds.toInt(), value)
+        val result = runCatching {
+            return cache.set(withPrefix(key) as String, duration.seconds.toInt(), value)
+        }
+        return result.getOrDefault(false)
     }
 
     override fun invalidateInternal(key: K): Result<Unit>
