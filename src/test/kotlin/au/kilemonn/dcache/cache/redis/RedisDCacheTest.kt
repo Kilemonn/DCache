@@ -166,6 +166,12 @@ class RedisDCacheTest: RedisContainerTest()
         config.buildCache()
     }
 
+    /**
+     * This behaviour is interesting, the redis client must queue the put calls
+     * once the redis instances is available again, the queued events are played.
+     *
+     * When this test runs on its own it fails...
+     */
     @Test
     fun cacheNotAccessible_initially()
     {
@@ -176,7 +182,7 @@ class RedisDCacheTest: RedisContainerTest()
             Assertions.assertFalse { dCache.put(key, value) }
             Assertions.assertNull(dCache.get(key))
         }
-        DCacheTest.testGetAndPut(key, value, dCache)
+        Assertions.assertEquals(value, dCache.get(key))
     }
 
     @Test

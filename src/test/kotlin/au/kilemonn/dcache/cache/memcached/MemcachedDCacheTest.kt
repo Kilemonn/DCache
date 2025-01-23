@@ -242,6 +242,10 @@ class MemcachedDCacheTest : MemcachedContainerTest()
         config.buildCache()
     }
 
+    /**
+     * This behaviour is interesting, the memcached client must queue the put calls
+     * once the memcached instances is available again, the queued events are played.
+     */
     @Test
     fun cacheNotAccessible_initially()
     {
@@ -252,7 +256,8 @@ class MemcachedDCacheTest : MemcachedContainerTest()
             Assertions.assertFalse { dCache.put(key, value) }
             Assertions.assertNull(dCache.get(key))
         }
-        DCacheTest.testGetAndPut(key, value, dCache)
+
+        Assertions.assertEquals(value, dCache.get(key))
     }
 
     @Test
