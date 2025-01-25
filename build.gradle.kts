@@ -61,3 +61,8 @@ tasks.jacocoTestReport {
         csv.required.set(true)
     }
 }
+
+// Disable bootjar task since this is a library and has no main class
+tasks.bootJar {
+    enabled = false
+}
