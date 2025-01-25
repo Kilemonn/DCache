@@ -67,6 +67,10 @@ class MemcachedDCache<K, V: Serializable>(keyClass: Class<K>, valueClass: Class<
         val result = runCatching {
             return cache.set(withPrefix(key) as String, duration.seconds.toInt(), value)
         }
+        if (hasFallback() && !result.getOrDefault(false))
+        {
+            return fallbackCache!!.putWithExpiry(key, value, duration)
+        }
         return result.getOrDefault(false)
     }
 

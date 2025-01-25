@@ -102,11 +102,19 @@ class RedisDCache<K, V: Serializable>(keyClass: Class<K>, valueClass: Class<V>, 
         val result = put(key, value)
         if (!result)
         {
+            if (hasFallback())
+            {
+                return fallbackCache!!.putWithExpiry(key, value, duration)
+            }
             return result
         }
 
         val res = runCatching {
             return template.expire(withPrefix(key), duration)
+        }
+        if (hasFallback() && !res.getOrDefault(false))
+        {
+            return fallbackCache!!.putWithExpiry(key, value, duration)
         }
         return res.getOrDefault(false)
     }

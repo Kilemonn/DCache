@@ -157,8 +157,8 @@ class MemcachedDCacheWithFallbackTest: MemcachedContainerTest()
     @Test
     fun testFallback_putWithExpiry()
     {
-        val key = "testFallback_putIfAbsent"
-        val value = "testFallback_putIfAbsent_value"
+        val key = "testFallback_putWithExpiry"
+        val value = "testFallback_putWithExpiry_value"
         whilePaused(memcachedContainer) {
             DCacheTest.testPutWithExpiry(key, value, dCache)
             Assertions.assertNull(fallbackCache.get(key))
