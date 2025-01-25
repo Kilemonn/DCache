@@ -3,8 +3,6 @@ package au.kilemonn.dcache.cache.redis
 import au.kilemonn.dcache.cache.DCache
 import au.kilemonn.dcache.cache.DCacheInitialisationException
 import au.kilemonn.dcache.config.CacheConfiguration
-import org.springframework.dao.QueryTimeoutException
-import org.springframework.data.redis.RedisConnectionFailureException
 import org.springframework.data.redis.connection.RedisStandaloneConfiguration
 import org.springframework.data.redis.connection.lettuce.LettuceClientConfiguration
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory
@@ -22,7 +20,7 @@ class RedisDCache<K, V: Serializable>(keyClass: Class<K>, valueClass: Class<V>, 
 {
     companion object
     {
-        const val REDIS_DEFAULT_PORT: Int = 6379
+        const val DEFAULT_REDIS_PORT: Int = 6379
     }
 
     private val template: RedisTemplate<K, V> = RedisTemplate()
@@ -37,14 +35,16 @@ class RedisDCache<K, V: Serializable>(keyClass: Class<K>, valueClass: Class<V>, 
         {
             throw DCacheInitialisationException(config.id, "No endpoint provided for REDIS cache.")
         }
-        var port = config.getPort()
-        if (port == 0)
+
+        val split = config.getEndpoint().split(":")
+        var port = DEFAULT_REDIS_PORT
+        if (split.size > 1)
         {
-            port = REDIS_DEFAULT_PORT
+            port = split[1].toInt()
         }
 
         val redisConfiguration = RedisStandaloneConfiguration()
-        redisConfiguration.hostName = config.getEndpoint()
+        redisConfiguration.hostName = split[0]
         redisConfiguration.port = port
         return redisConfiguration
     }

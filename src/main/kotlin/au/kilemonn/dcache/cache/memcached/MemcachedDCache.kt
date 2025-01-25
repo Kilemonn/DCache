@@ -36,13 +36,14 @@ class MemcachedDCache<K, V: Serializable>(keyClass: Class<K>, valueClass: Class<
             throw DCacheInitialisationException(config.id, "No endpoint provided for MEMCACHED cache.")
         }
 
-        var port = config.getPort()
-        if (port == 0)
+        val split = config.getEndpoint().split(":")
+        var port = DEFAULT_MEMCACHED_PORT
+        if (split.size > 1)
         {
-            port = DEFAULT_MEMCACHED_PORT
+            port = split[1].toInt()
         }
 
-        val builder = XMemcachedClientBuilder(listOf(InetSocketAddress.createUnresolved(config.getEndpoint(), port)))
+        val builder = XMemcachedClientBuilder(listOf(InetSocketAddress.createUnresolved(split[0], port)))
         builder.opTimeout = config.getTimeout()
         cache = builder.build()
     }

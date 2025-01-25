@@ -61,11 +61,8 @@ class MemcachedDCacheTest : MemcachedContainerTest()
         override fun initialize(configurableApplicationContext: ConfigurableApplicationContext)
         {
              TestPropertyValues.of(
-                "dcache.cache.memcached-cache.endpoint=${memcachedContainer.host}",
-                "dcache.cache.memcached-cache.port=${memcachedContainer.getMappedPort(MEMCACHED_PORT)}",
-
-                "dcache.cache.memcached-cache-with-prefix.endpoint=${memcachedContainer.host}",
-                "dcache.cache.memcached-cache-with-prefix.port=${memcachedContainer.getMappedPort(MEMCACHED_PORT)}"
+                "dcache.cache.memcached-cache.endpoint=${memcachedContainer.host}:${memcachedContainer.getMappedPort(MEMCACHED_PORT)}",
+                "dcache.cache.memcached-cache-with-prefix.endpoint=${memcachedContainer.host}:${memcachedContainer.getMappedPort(MEMCACHED_PORT)}",
             ).applyTo(configurableApplicationContext.environment)
         }
     }
@@ -229,16 +226,16 @@ class MemcachedDCacheTest : MemcachedContainerTest()
     }
 
     @Test
-    fun testConstructor_portIsZero()
+    fun testConstructor_portNotProvided()
     {
         val options = HashMap<String, Any>()
         options[CacheConfiguration.ENDPOINT] = "localhost"
-        val config = CacheConfiguration("testConstructor_portIsZero", DCacheType.MEMCACHED, String::class.java,
+        val config = CacheConfiguration("testConstructor_portNotProvided", DCacheType.MEMCACHED, String::class.java,
             Properties::class.java, options)
 
         Assertions.assertTrue { String::class.java == config.keyClass || java.lang.String::class == config.keyClass }
         Assertions.assertTrue { config.getEndpoint().isNotBlank() }
-        Assertions.assertEquals(0, config.getPort())
+        Assertions.assertEquals(1, (options[CacheConfiguration.ENDPOINT] as String).split(":").size)
         config.buildCache()
     }
 

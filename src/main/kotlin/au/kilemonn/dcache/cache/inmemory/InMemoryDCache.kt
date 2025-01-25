@@ -21,14 +21,6 @@ class InMemoryDCache<K, V: Serializable>(keyClass: Class<K>, valueClass: Class<V
 
     init {
         val builder = Caffeine.newBuilder()
-        if (config.getMaxEntries() > 0)
-        {
-            builder.maximumSize(config.getMaxEntries())
-        }
-        if (config.getExpirationFromWrite() > 0)
-        {
-            builder.expireAfterWrite(config.getExpirationFromWrite(), TimeUnit.SECONDS)
-        }
         cache = builder.build()
     }
 

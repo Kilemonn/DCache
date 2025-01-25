@@ -56,8 +56,7 @@ class RedisDCacheTest: RedisContainerTest()
         override fun initialize(configurableApplicationContext: ConfigurableApplicationContext)
         {
             TestPropertyValues.of(
-                "dcache.cache.redis-cache.endpoint=${redisContainer.host}",
-                "dcache.cache.redis-cache.port=${redisContainer.getMappedPort(REDIS_PORT)}"
+                "dcache.cache.redis-cache.endpoint=${redisContainer.host}:${redisContainer.getMappedPort(REDIS_PORT)}",
             ).applyTo(configurableApplicationContext.environment)
         }
     }
@@ -154,15 +153,15 @@ class RedisDCacheTest: RedisContainerTest()
     }
 
     @Test
-    fun testConstructor_portIsZero()
+    fun testConstructor_portIsNotProvided()
     {
         val options = HashMap<String, Any>()
         options[CacheConfiguration.ENDPOINT] = "localhost"
-        val config = CacheConfiguration("testConstructor_portIsZero", DCacheType.REDIS, String::class.java,
+        val config = CacheConfiguration("testConstructor_portIsNotProvided", DCacheType.REDIS, String::class.java,
         Properties::class.java, options)
 
         Assertions.assertTrue { config.getEndpoint().isNotBlank() }
-        Assertions.assertEquals(0, config.getPort())
+        Assertions.assertEquals(1, (options[CacheConfiguration.ENDPOINT] as String).split(":").size)
         config.buildCache()
     }
 

@@ -21,7 +21,6 @@ class CacheConfiguration<K, V: Serializable>
         const val VALUE_CLASS: String = "value_class"
         const val PREFIX: String = "prefix"
         const val ENDPOINT: String = "endpoint"
-        const val PORT: String = "port"
         const val FALLBACK: String = "fallback"
         const val TIMEOUT: String = "timeout"
 
@@ -35,7 +34,6 @@ class CacheConfiguration<K, V: Serializable>
 
     private var prefix: String = ""
     private var endpoint: String = ""
-    private var port: Int = 0
     private var fallback: String = ""
     private var timeoutMillis: Long = 0 // Milliseconds
 
@@ -48,7 +46,6 @@ class CacheConfiguration<K, V: Serializable>
 
         this.withPrefix(Optional<String>.ofNullable(options[PREFIX]).orElse("").toString())
             .withEndpoint(Optional<String>.ofNullable(options[ENDPOINT]).orElse("").toString())
-            .withPort((Optional<Int>.ofNullable(options[PORT]).orElse(0)).toString().toInt())
             .withFallback((Optional<String>.ofNullable(options[FALLBACK]).orElse("")).toString())
             .withTimeout((Optional<Long>.ofNullable(options[TIMEOUT]).orElse(DEFAULT_TIMEOUT)).toString().toLong())
     }
@@ -73,17 +70,6 @@ class CacheConfiguration<K, V: Serializable>
     fun getEndpoint(): String
     {
         return endpoint
-    }
-
-    fun withPort(port: Int): CacheConfiguration<K, V>
-    {
-        this.port = port
-        return this
-    }
-
-    fun getPort(): Int
-    {
-        return port
     }
 
     fun withFallback(fallback: String): CacheConfiguration<K, V>
