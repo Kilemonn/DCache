@@ -33,10 +33,11 @@ class DCacheTest
             Assertions.assertEquals(value, dCache.getWithDefault(key, value))
         }
 
-        fun<K, V: Serializable>testGetWithDefaultFunction(key: K, supplier: Function<K, V>, dCache: DCache<K, V>)
+        fun<K, V: Serializable>testGetWithLoader(key: K, loader: Function<K, V>, dCache: DCache<K, V>)
         {
             Assertions.assertNull(dCache.get(key))
-            Assertions.assertEquals(supplier.apply(key), dCache.getWithDefault(key, supplier))
+            Assertions.assertEquals(loader.apply(key), dCache.getWithLoader(key, loader, Duration.ZERO))
+            Assertions.assertEquals(loader.apply(key), dCache.get(key))
         }
 
         fun<K, V: Serializable>testPutIfAbsent(key: K, value: V, value2: V, dCache: DCache<K, V>)

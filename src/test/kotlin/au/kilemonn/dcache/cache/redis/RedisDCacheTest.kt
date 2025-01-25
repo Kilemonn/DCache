@@ -1,6 +1,5 @@
 package au.kilemonn.dcache.cache.redis
 
-import au.kilemonn.dcache.DCacheAssertions
 import au.kilemonn.dcache.cache.DCache
 import au.kilemonn.dcache.cache.DCacheInitialisationException
 import au.kilemonn.dcache.cache.DCacheTest
@@ -18,8 +17,6 @@ import org.springframework.boot.test.util.TestPropertyValues
 import org.springframework.context.ApplicationContextInitializer
 import org.springframework.context.ConfigurableApplicationContext
 import org.springframework.context.annotation.Import
-import org.springframework.dao.QueryTimeoutException
-import org.springframework.data.redis.RedisConnectionFailureException
 import org.springframework.test.context.ContextConfiguration
 import org.springframework.test.context.TestPropertySource
 import org.springframework.test.context.junit.jupiter.SpringExtension
@@ -100,11 +97,11 @@ class RedisDCacheTest: RedisContainerTest()
     }
 
     @Test
-    fun testGetWithDefaultFunction()
+    fun testGetWithLoader()
     {
-        val key = "testGetWithDefaultFunction"
-        val value = "testGetWithDefaultFunction_value"
-        DCacheTest.testGetWithDefaultFunction(key, { value }, dCache)
+        val key = "testGetWithLoader"
+        val value = "testGetWithLoader_value"
+        DCacheTest.testGetWithLoader(key, { value }, dCache)
     }
 
     @Test

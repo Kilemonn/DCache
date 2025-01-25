@@ -12,6 +12,7 @@ import java.util.function.Function
  */
 abstract class DCache<K, V: Serializable>(private val keyClass: Class<K>, private val valueClass: Class<V>)
 {
+    // TODO: Track status of primary cache to speed up lookups to fallback cache - at the moment setting a lowish timeout makes this slightly better
     protected var fallbackCache: DCache<K, V>? = null
 
     fun get(key: K): V?
@@ -30,14 +31,40 @@ abstract class DCache<K, V: Serializable>(private val keyClass: Class<K>, privat
      */
     protected abstract fun getInternal(key: K): Result<V?>
 
+    /**
+     * Get the stored cache value or return the provided default value if it does not exist.
+     * This does not load any new entries into the cache.
+     */
     fun getWithDefault(key: K, default: V): V
     {
         return Optional<V>.ofNullable(get(key)).orElse(default)
     }
 
-    fun getWithDefault(key: K, defaultFunction: Function<K, V>): V
+    /**
+     * Attempt to retrieve the value with the provided [key].
+     * If the value does not exist, the [loader] is called and the value is stored in the cache with
+     * the provided [duration].
+     */
+    fun getWithLoader(key: K, loader: Function<K, V>, duration: Duration): V
     {
-        return Optional<V>.ofNullable(get(key)).orElse(defaultFunction.apply(key))
+        val value = get(key)
+        if (value != null)
+        {
+            return value
+        }
+
+        val loaderValue = loader.apply(key)
+        // TODO: Handle return value from put methods
+        if (duration.isZero)
+        {
+            put(key, loaderValue)
+        }
+        else
+        {
+            putWithExpiry(key, loaderValue, duration)
+        }
+
+        return loaderValue
     }
 
     /**
@@ -143,7 +170,7 @@ abstract class DCache<K, V: Serializable>(private val keyClass: Class<K>, privat
         }
     }
 
-    fun setFallback(fallbackCache: DCache<*, *>)
+    internal fun setFallback(fallbackCache: DCache<*, *>)
     {
         if (!getKeyClass().isAssignableFrom(fallbackCache.getKeyClass()))
         {
@@ -159,4 +186,9 @@ abstract class DCache<K, V: Serializable>(private val keyClass: Class<K>, privat
     }
 
     abstract fun getCacheName(): String
+
+    fun hasFallback(): Boolean
+    {
+        return fallbackCache != null
+    }
 }

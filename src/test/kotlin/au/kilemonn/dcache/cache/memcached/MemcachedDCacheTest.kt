@@ -22,7 +22,6 @@ import org.springframework.test.context.ContextConfiguration
 import org.springframework.test.context.TestPropertySource
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import java.util.*
-import java.util.concurrent.TimeoutException
 
 /**
  * A test for the [MemcachedDCache] initialisation and wiring.
@@ -178,12 +177,12 @@ class MemcachedDCacheTest : MemcachedContainerTest()
     }
 
     @Test
-    fun testGetWithDefaultFunction()
+    fun testGetWithLoader()
     {
         val key = "testGetWithDefaultSupplier"
         val value = "testGetWithDefaultSupplier_value"
-        DCacheTest.testGetWithDefaultFunction(key, { value }, dCache)
-        DCacheTest.testGetWithDefaultFunction(key, { value }, prefixDCache)
+        DCacheTest.testGetWithLoader(key, { value }, dCache)
+        DCacheTest.testGetWithLoader(key, { value }, prefixDCache)
     }
 
     @Test

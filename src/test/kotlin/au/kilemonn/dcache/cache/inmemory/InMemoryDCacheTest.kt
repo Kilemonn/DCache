@@ -81,11 +81,11 @@ class InMemoryDCacheTest
     }
 
     @Test
-    fun testGetWithDefaultFunction()
+    fun testGetWithLoader()
     {
         val key = "testGetWithDefaultSupplier"
         val value = "testGetWithDefaultSupplier_value"
-        DCacheTest.testGetWithDefaultFunction(key, { value }, dCache)
+        DCacheTest.testGetWithLoader(key, { value }, dCache)
     }
 
     @Test

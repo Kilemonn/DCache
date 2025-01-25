@@ -44,7 +44,7 @@ class TemplateTypeMisMatchTest
         Assertions.assertFalse { wrongKeyDCache.getKeyClass().isAssignableFrom(keyProps::class.java) }
         Assertions.assertThrows(InvalidKeyException::class.java) { wrongKeyDCache.get(keyProps) }
         Assertions.assertThrows(InvalidKeyException::class.java) { wrongKeyDCache.getWithDefault(keyProps, Properties()) }
-        Assertions.assertThrows(InvalidKeyException::class.java) { wrongKeyDCache.getWithDefault(keyProps) {Properties()} }
+        Assertions.assertThrows(InvalidKeyException::class.java) { wrongKeyDCache.getWithLoader(keyProps, {Properties()}, Duration.ZERO) }
 
         Assertions.assertThrows(InvalidKeyException::class.java) { wrongKeyDCache.put(keyProps, Properties()) }
         Assertions.assertThrows(InvalidKeyException::class.java) { wrongKeyDCache.putWithExpiry(keyProps, Properties(), Duration.ofSeconds(10)) }
