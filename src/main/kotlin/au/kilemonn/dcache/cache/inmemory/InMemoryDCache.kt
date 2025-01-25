@@ -40,7 +40,6 @@ class InMemoryDCache<K, V: Serializable>(keyClass: Class<K>, valueClass: Class<V
     override fun putInternal(key: K, value: V): Result<Boolean>
     {
         cache.put(withPrefix(key), value)
-        // TODO: Return val
         return Result.success(true)
     }
 

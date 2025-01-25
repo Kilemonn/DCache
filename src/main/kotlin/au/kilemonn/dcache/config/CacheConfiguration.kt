@@ -22,8 +22,6 @@ class CacheConfiguration<K, V: Serializable>
         const val PREFIX: String = "prefix"
         const val ENDPOINT: String = "endpoint"
         const val PORT: String = "port"
-        const val MAX_ENTRIES: String = "max_entries"
-        const val EXPIRATION_FROM_WRITE: String = "expiration_from_write"
         const val FALLBACK: String = "fallback"
         const val TIMEOUT: String = "timeout"
 
@@ -38,8 +36,6 @@ class CacheConfiguration<K, V: Serializable>
     private var prefix: String = ""
     private var endpoint: String = ""
     private var port: Int = 0
-    private var maxEntries: Long = 0
-    private var expirationFromWrite: Long = 0 // In seconds
     private var fallback: String = ""
     private var timeoutMillis: Long = 0 // Milliseconds
 
@@ -53,8 +49,6 @@ class CacheConfiguration<K, V: Serializable>
         this.withPrefix(Optional<String>.ofNullable(options[PREFIX]).orElse("").toString())
             .withEndpoint(Optional<String>.ofNullable(options[ENDPOINT]).orElse("").toString())
             .withPort((Optional<Int>.ofNullable(options[PORT]).orElse(0)).toString().toInt())
-            .withMaxEntries((Optional<Long>.ofNullable(options[MAX_ENTRIES]).orElse(0L)).toString().toLong())
-            .withExpirationFromWrite((Optional<Int>.ofNullable(options[EXPIRATION_FROM_WRITE]).orElse(0)).toString().toLong())
             .withFallback((Optional<String>.ofNullable(options[FALLBACK]).orElse("")).toString())
             .withTimeout((Optional<Long>.ofNullable(options[TIMEOUT]).orElse(DEFAULT_TIMEOUT)).toString().toLong())
     }
@@ -90,28 +84,6 @@ class CacheConfiguration<K, V: Serializable>
     fun getPort(): Int
     {
         return port
-    }
-
-    fun withMaxEntries(maxEntries: Long): CacheConfiguration<K, V>
-    {
-        this.maxEntries = maxEntries
-        return this
-    }
-
-    fun getMaxEntries(): Long
-    {
-        return maxEntries
-    }
-
-    fun withExpirationFromWrite(expirationFromWrite: Long): CacheConfiguration<K, V>
-    {
-        this.expirationFromWrite = expirationFromWrite
-        return this
-    }
-
-    fun getExpirationFromWrite(): Long
-    {
-        return expirationFromWrite
     }
 
     fun withFallback(fallback: String): CacheConfiguration<K, V>
