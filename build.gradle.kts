@@ -4,7 +4,7 @@ val testContainersVersion = "1.20.4"
 plugins {
     kotlin("jvm") version "2.0.21"
     kotlin("plugin.spring") version "2.0.0"
-    id("org.springframework.boot") version "3.3.0"
+    `java-library`
     jacoco
 }
 
@@ -60,9 +60,4 @@ tasks.jacocoTestReport {
         xml.required.set(false)
         csv.required.set(true)
     }
-}
-
-// Disable bootjar task since this is a library and has no main class
-tasks.bootJar {
-    enabled = false
 }
