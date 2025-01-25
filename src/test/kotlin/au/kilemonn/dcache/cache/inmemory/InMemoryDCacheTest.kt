@@ -46,6 +46,14 @@ class InMemoryDCacheTest
     private lateinit var dCacheManager: DCacheManager
 
     @Test
+    fun testCacheNames()
+    {
+        Assertions.assertEquals("in-mem-name", dCache.getCacheName())
+        Assertions.assertEquals("in-mem-name", inMemoryDCache.getCacheName())
+        Assertions.assertEquals("in-mem-name2", dCache2.getCacheName())
+    }
+
+    @Test
     fun testInMemoryCacheMultipleReferences()
     {
         Assertions.assertEquals(2, dCacheManager.size)

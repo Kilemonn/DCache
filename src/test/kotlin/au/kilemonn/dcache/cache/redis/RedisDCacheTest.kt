@@ -81,6 +81,12 @@ class RedisDCacheTest: RedisContainerTest()
     }
 
     @Test
+    fun testCacheNames()
+    {
+        Assertions.assertEquals("redis-cache", dCache.getCacheName())
+    }
+
+    @Test
     fun testGetAndPut()
     {
         val key = "redis-key"

@@ -73,6 +73,7 @@ class MemcachedDCacheTest : MemcachedContainerTest()
     fun beforeEach()
     {
         Assertions.assertTrue(memcachedContainer.isRunning)
+        Assertions.assertFalse { dCache.hasFallback() }
     }
 
     @Autowired
@@ -85,6 +86,13 @@ class MemcachedDCacheTest : MemcachedContainerTest()
 
     @Autowired
     private lateinit var cacheManager: DCacheManager
+
+    @Test
+    fun testCacheNames()
+    {
+        Assertions.assertEquals("memcached-cache", dCache.getCacheName())
+        Assertions.assertEquals("memcached-cache-with-prefix", prefixDCache.getCacheName())
+    }
 
     @Test
     fun testConstructor_nonStringKeyClass()

@@ -90,6 +90,10 @@ class RedisDCache<K, V: Serializable>(keyClass: Class<K>, valueClass: Class<V>, 
             val res = template.opsForValue().setIfAbsent(withPrefix(key), value)
             return res
         }
+        if (hasFallback() && !result.getOrDefault(false))
+        {
+            return fallbackCache!!.putIfAbsent(key, value)
+        }
         return result.getOrDefault(false)
     }
 
