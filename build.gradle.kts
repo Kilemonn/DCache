@@ -1,4 +1,4 @@
-var springVersion = "3.4.1"
+var springVersion = "3.4.2"
 val testContainersVersion = "1.20.4"
 
 plugins {
@@ -8,8 +8,8 @@ plugins {
     jacoco
 }
 
-group = "au.kilemonn"
-version = "0.1.0"
+group = "com.github.Kilemonn"
+version = "0.1.0" // Make sure this version matches the release version in the repo
 java.sourceCompatibility = JavaVersion.VERSION_17
 
 repositories {
