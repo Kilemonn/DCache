@@ -9,6 +9,8 @@ Allowing you to simply define your preferred cache ID, backing mechanism, key an
 
 Below are some quick start configuration snippets and matching code snippets.
 
+### Example in [DCache-Example](https://github.com/Kilemonn/DCache-Example).
+
 ### More detailed documentation can be found in the [Wiki](https://github.com/Kilemonn/DCache/wiki)!
 Including remote cache configuration and fallback cache configuration.
 
@@ -18,7 +20,7 @@ This can be included by making sure that you have [JitPack](https://jitpack.io) 
 You can refer to the hosted versions of this library at [DCache](https://jitpack.io/#Kilemonn/DCache).
 
 Here is an example in Gradle to include the dependency:
-```
+```groovy
 implementation("com.github.Kilemonn:dcache:0.1.0")
 ```
 
