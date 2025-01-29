@@ -32,8 +32,8 @@ The expected format is: `dcache.cache.<cache-id>.<property>=<value>` where `cach
 For example defining an in memory cache with String as the key and String as the value, requires the following properties:
 ```properties
 dcache.cache.my-in-memory-cache.type=IN_MEMORY
-dcache.cache.my-in-memory-cache.key_type=java.lang.String
-dcache.cache.my-in-memory-cache.value_type=java.lang.String
+dcache.cache.my-in-memory-cache.key_class=java.lang.String
+dcache.cache.my-in-memory-cache.value_class=java.lang.String
 ```
 
 In your application code you can auto wire this cache using the following code:
